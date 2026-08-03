@@ -53,13 +53,14 @@ async function readJson(request) {
 function isAllowedOrigin(request) {
   if (!request.headers.origin) return true;
   try {
-    return new URL(request.headers.origin).host === request.headers.host;
+    const protocol = request.socket.encrypted ? "https:" : "http:";
+    return new URL(request.headers.origin).origin === new URL(`${protocol}//${request.headers.host}`).origin;
   } catch {
     return false;
   }
 }
 
-function resolvePublicPath(urlPath) {
+async function resolvePublicPath(urlPath) {
   let relative;
   try {
     relative = urlPath === "/" ? "index.html" : decodeURIComponent(urlPath.slice(1));
@@ -67,7 +68,9 @@ function resolvePublicPath(urlPath) {
     return null;
   }
   const resolved = path.resolve(publicRoot, relative);
-  return resolved.startsWith(`${publicRoot}${path.sep}`) ? resolved : null;
+  if (!resolved.startsWith(`${publicRoot}${path.sep}`)) return null;
+  const [canonicalRoot, canonicalFile] = await Promise.all([fs.realpath(publicRoot), fs.realpath(resolved)]);
+  return canonicalFile.startsWith(`${canonicalRoot}${path.sep}`) ? canonicalFile : null;
 }
 
 function cleanUtm(value) {
@@ -80,11 +83,10 @@ function cleanUtm(value) {
 export function validateLead(input) {
   const name = typeof input?.name === "string" ? input.name.trim().replace(/\s+/g, " ") : "";
   const email = typeof input?.email === "string" ? input.email.trim().toLowerCase() : "";
-  let digits = typeof input?.whatsapp === "string" ? input.whatsapp.replace(/\D/g, "") : "";
-  if (digits.length === 10 || digits.length === 11) digits = `55${digits}`;
+  const digits = typeof input?.whatsapp === "string" ? input.whatsapp.replace(/\D/g, "") : "";
 
   if (name.length < 2 || name.length > 120) return { error: "Informe seu nome." };
-  if (!/^55\d{10,11}$/.test(digits)) return { error: "Informe um WhatsApp brasileiro com DDD." };
+  if (!/^\d{10,11}$/.test(digits)) return { error: "Informe um WhatsApp brasileiro com DDD." };
   if (email.length > 254 || !emailPattern.test(email)) return { error: "Informe um e-mail valido." };
   if (input?.consent !== true) return { error: "Autorize o contato para continuar." };
 
@@ -98,7 +100,7 @@ export function validateLead(input) {
   return {
     value: {
       name,
-      whatsapp: `+${digits}`,
+      whatsapp: `+55${digits}`,
       email,
       answers: input.answers,
       ...classification,
@@ -196,7 +198,7 @@ export function createServer({
         return;
       }
 
-      const filePath = resolvePublicPath(url.pathname);
+      const filePath = await resolvePublicPath(url.pathname);
       if (!filePath) {
         response.writeHead(404).end();
         return;

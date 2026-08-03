@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
+import fs from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 import { createServer, validateLead } from "../server.mjs";
+
+const publicRoot = fileURLToPath(new URL("../public/", import.meta.url));
 
 const validInput = {
   name: "  Maria   da Silva  ",
@@ -60,6 +66,11 @@ test("rejects invalid identity, consent and answers", () => {
   assert.match(validateLead({ ...validInput, consent: false }).error, /contato/i);
   assert.match(validateLead({ ...validInput, answers: ["owntime"] }).error, /respostas/i);
   assert.match(validateLead(null).error, /nome/i);
+});
+
+test("rejects country-prefixed phone input outside the local-phone boundary", () => {
+  assert.match(validateLead({ ...validInput, whatsapp: "+55 51 3333-4444" }).error, /WhatsApp/i);
+  assert.match(validateLead({ ...validInput, whatsapp: "+55 51 99999-9999" }).error, /WhatsApp/i);
 });
 
 test("keeps only recognized string UTM values", () => {
@@ -143,9 +154,29 @@ test("rejects invalid lead requests at the HTTP boundary", async () => {
     assert.equal((await postLead(baseUrl, validInput, { "Content-Type": "text/plain" })).status, 400);
     assert.equal((await postLead(baseUrl, validInput, { "Content-Type": "application/jsonp" })).status, 400);
     assert.equal((await postLead(baseUrl, validInput, { Origin: "https://foreign.example" })).status, 400);
+    assert.equal((await postLead(baseUrl, validInput, { Origin: baseUrl.replace("http:", "https:") })).status, 400);
     assert.equal((await postLead(baseUrl, "{")).status, 400);
     assert.equal((await fetch(`${baseUrl}/api/leads`, { method: "PUT" })).status, 405);
   });
+});
+
+test("does not serve a public symlink whose target is outside public", async () => {
+  const temporaryDirectory = await fs.mkdtemp(path.join(os.tmpdir(), "lp-tijolo-"));
+  const outsideFile = path.join(temporaryDirectory, "private.txt");
+  const link = path.join(publicRoot, `outside-${process.pid}`);
+  await fs.writeFile(outsideFile, "private");
+
+  try {
+    await fs.symlink(temporaryDirectory, link, "junction");
+    await withServer(publicOptions, async (baseUrl) => {
+      const response = await fetch(`${baseUrl}/${path.basename(link)}/private.txt`);
+      assert.equal(response.status, 404);
+      assert.notEqual(await response.text(), "private");
+    });
+  } finally {
+    await fs.rm(link, { recursive: true, force: true });
+    await fs.rm(temporaryDirectory, { recursive: true, force: true });
+  }
 });
 
 test("serves public files with restrictive security headers", async () => {
