@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Descubra qual refugio Ownerinc em Gramado combina com seu jeito de viver.">
+  <title>Descubra seu refugio em Gramado | Ownerinc</title>
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <main>
+    <section id="intro" aria-labelledby="intro-title">
+      <p>Ownerinc</p>
+      <h1 id="intro-title">Qual refugio combina com o seu jeito de viver Gramado?</h1>
+      <p>Responda a cinco perguntas e descubra o empreendimento mais alinhado ao que voce valoriza.</p>
+      <button id="start" type="button">Descobrir meu refugio</button>
+    </section>
+
+    <section id="quiz" aria-labelledby="quiz-title" hidden>
+      <h2 id="quiz-title">Seu jeito de viver Gramado</h2>
+      <p id="quiz-progress" aria-live="polite">Pergunta 1 de 5</p>
+      <form id="quiz-form">
+        <fieldset>
+          <legend id="question-prompt" tabindex="-1">A essencia do seu refugio ideal na Serra Gaucha esta em:</legend>
+          <div>
+            <input id="answer-owntime" type="radio" name="answer" value="owntime" required>
+            <label for="answer-owntime">Um ambiente amplo, conectado ao bosque e pensado para a convivencia.</label>
+          </div>
+          <div>
+            <input id="answer-nest" type="radio" name="answer" value="nest" required>
+            <label for="answer-nest">Uma arquitetura organica e contemporanea, concebida como um refugio de montanha.</label>
+          </div>
+        </fieldset>
+        <button id="back" type="button" disabled>Voltar</button>
+        <button id="continue" type="submit" disabled>Continuar</button>
+      </form>
+    </section>
+
+    <section id="result" aria-labelledby="result-title" aria-live="polite" hidden>
+      <p>Seu resultado</p>
+      <h2 id="result-title" tabindex="-1"></h2>
+      <p id="result-copy"></p>
+      <a id="result-link" hidden>Conhecer o empreendimento</a>
+      <button id="show-lead-form" type="button">Quero saber mais</button>
+    </section>
+
+    <form id="lead-form" aria-labelledby="lead-title" hidden>
+      <h2 id="lead-title" tabindex="-1">Fale com a Ownerinc</h2>
+      <p>Preencha seus dados para receber mais informacoes sobre o seu resultado.</p>
+
+      <label for="name">Nome</label>
+      <input id="name" name="name" type="text" autocomplete="name" minlength="2" maxlength="120" required>
+
+      <label for="whatsapp">WhatsApp com DDD</label>
+      <input id="whatsapp" name="whatsapp" type="tel" autocomplete="tel" inputmode="tel" required>
+
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required>
+
+      <div>
+        <input id="consent" name="consent" type="checkbox" required>
+        <label for="consent">Autorizo a Ownerinc a entrar em contato sobre os empreendimentos apresentados e
+        declaro que li a <a data-config="privacyPolicyUrl">Politica de Privacidade</a>.</label>
+      </div>
+
+      <p id="lead-error" role="alert" hidden></p>
+      <button id="submit-lead" type="submit">Enviar meus dados</button>
+    </form>
+
+    <section id="success" aria-labelledby="success-title" aria-live="polite" hidden>
+      <h2 id="success-title" tabindex="-1">Recebemos seus dados</h2>
+      <p>A equipe Ownerinc entrara em contato com voce.</p>
+    </section>
+
+    <p id="page-error" role="alert" hidden></p>
+    <noscript>Ative o JavaScript para responder ao quiz e enviar o formulario.</noscript>
+  </main>
+</body>
+</html>
