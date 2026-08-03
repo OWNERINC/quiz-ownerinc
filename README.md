@@ -1,39 +1,115 @@
 # LP Tijolo
 
-Projeto isolado para a landing page Tijolo.
+Quiz mobile-first que indica Owntime ou Nest por afinidade e, com consentimento,
+encaminha o lead a um webhook server-side.
 
-## Estado
+## Requisitos e operacao local
 
-O produto esta em definicao. Consulte `docs/product/brief.md` antes de escolher
-a stack ou iniciar a implementacao.
+- Node.js 20 ou superior.
+- Variaveis de ambiente configuradas conforme `.env.example`.
 
-## Estrutura
+O servidor le as variaveis do ambiente do processo; `.env.example` e apenas o
+contrato e nao e carregado automaticamente. Em PowerShell, por exemplo:
 
-- `docs/product/brief.md`: objetivo, escopo e pendencias do produto.
-- `scripts/`: automacoes locais do projeto.
-- `tests/`: verificacoes automatizadas do projeto.
-- `.env.example`: contrato das variaveis de ambiente, sem segredos.
+```powershell
+$env:PRIVACY_POLICY_URL = "https://ownerinc.com.br/politica-de-privacidade/"
+$env:OWNTIME_URL = "https://owntime.com.br/"
+$env:NEST_URL = "https://nestgramado.com.br/"
+npm run serve
+```
 
-## Verificacao
+Abra `http://localhost:4182`. Para usar outra porta, defina `PORT` antes de
+iniciar o servidor.
+
+## Testes
 
 ```sh
+npm test
 npm run verify
 ```
 
-## Assets pendentes para publicacao
+Os dois comandos executam a suite isolada do projeto; `verify` e a entrada usada
+pelo verificador agregado do workspace.
+
+## Ambiente
+
+| Variavel | Obrigatoria | Visibilidade e uso |
+| --- | --- | --- |
+| `PORT` | Nao | Porta do servidor; padrao `4182`. |
+| `PRIVACY_POLICY_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
+| `OWNTIME_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
+| `NEST_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
+| `LEAD_WEBHOOK_URL` | Sim para receber leads | Destino server-side; nunca e exposto pelo endpoint de configuracao. |
+| `LEAD_WEBHOOK_TOKEN` | Nao | Segredo server-side enviado como `Authorization: Bearer <token>`; nunca chega ao navegador. |
+
+Nao versione `.env` nem valores reais de webhook. As tres URLs publicas precisam
+usar HTTPS; configuracao ausente ou invalida impede a inicializacao.
+
+## Contrato do webhook
+
+`POST /api/leads` valida e normaliza a entrada, recalcula o resultado a partir
+das cinco respostas e envia `POST` para `LEAD_WEBHOOK_URL` com
+`Content-Type: application/json`. Quando configurado, o token segue no header
+`Authorization`. `X-Idempotency-Key` recebe o mesmo UUID de `submissionId`.
+
+Payload normalizado:
+
+```json
+{
+  "submissionId": "UUID gerado pelo servidor",
+  "source": "lp-tijolo",
+  "submittedAt": "data ISO 8601 gerada pelo servidor",
+  "name": "Nome sem espacos excedentes",
+  "whatsapp": "+5551999999999",
+  "email": "email@example.com",
+  "answers": ["owntime", "nest", "owntime", "nest", "owntime"],
+  "result": "owntime",
+  "scores": { "owntime": 3, "nest": 2 },
+  "utm": {
+    "source": "instagram",
+    "medium": "social",
+    "campaign": "campanha",
+    "content": "criativo",
+    "term": "termo"
+  },
+  "consent": {
+    "contact": true,
+    "acceptedAt": "mesma data ISO 8601 de submittedAt"
+  }
+}
+```
+
+`utm` contem somente valores string presentes entre `source`, `medium`,
+`campaign`, `content` e `term`; chaves ausentes sao omitidas. O servidor aceita
+apenas cinco respostas `owntime` ou `nest`, normaliza o telefone brasileiro para
+`+55` e nao confia em `result` enviado pelo navegador.
+
+O lead so e confirmado ao navegador com HTTP `201` depois que o webhook responde
+com sucesso. Sem `LEAD_WEBHOOK_URL`, a API responde `503`. Timeout de 10 segundos,
+erro de rede ou resposta nao bem-sucedida do webhook retornam `502`; nao ha fila,
+persistencia local nem confirmacao falsa, e o usuario recebe orientacao para
+tentar novamente.
+
+## Pendencias para publicacao
 
 Esta versao de preview usa placeholders locais claramente identificados para as
-cenas de resultado. A publicacao depende de fotografias e logos oficiais
-aprovados de Owntime e Nest.
+cenas de resultado. Ela nao esta pronta para deploy de producao. Antes da
+publicacao, ainda e necessario:
+
+- Configurar e validar o webhook de producao e seu token, se exigido.
+- Confirmar a URL vigente da politica de privacidade.
+- Documentar e validar o processo de deploy.
+- Fornecer os quatro assets oficiais aprovados nos caminhos exatos:
+  `public/assets/results/owntime-hero.webp`,
+  `public/assets/results/owntime-logo-white.png`,
+  `public/assets/results/nest-hero.webp` e
+  `public/assets/results/nest-logo-white.png`.
 
 - Heros: no minimo `2400x1500`, paisagem e alta resolucao, com arquitetura ou
   natureza nos dois tercos da direita e o ponto focal dentro do recorte central
   seguro para celular.
-- Logos: PNG transparente branco, com pelo menos `1600px` de largura, nos
-  caminhos exatos `public/assets/results/owntime-logo-white.png` e
-  `public/assets/results/nest-logo-white.png`.
-- A troca dos heros fica restrita as URLs das propriedades customizadas em
-  `public/styles.css`. Os elementos de imagem dos logos e seus fallbacks de texto
-  ja existem no markup; ao adicionar os dois PNGs oficiais nos caminhos acima,
-  o carregamento bem-sucedido exibe a imagem e mantem o texto acessivel sem
-  qualquer mudanca estrutural, de CSS ou JavaScript.
+- Logos: PNG transparente branco, com pelo menos `1600px` de largura.
+- Ao receber os heros, substituir em `public/styles.css` as duas URLs dos SVGs
+  `*-hero-placeholder.svg` pelos respectivos arquivos `*-hero.webp`. Os logos ja
+  sao referenciados nos caminhos finais e mantem fallback textual enquanto
+  estiverem ausentes.
