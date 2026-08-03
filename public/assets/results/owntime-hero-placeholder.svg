@@ -14,8 +14,8 @@
     <circle cx="660" cy="830" r="125"/><circle cx="790" cy="920" r="150"/>
     <circle cx="1450" cy="830" r="180"/><circle cx="1270" cy="945" r="145"/>
   </g>
-  <path d="M560 90h940" stroke="#d6c6a4" stroke-width="2" opacity=".4"/>
-  <text x="625" y="125" fill="#f1eadc" font-family="sans-serif" font-size="20" letter-spacing="3">PLACEHOLDER · OWNTIME</text>
-  <text x="625" y="165" fill="#d6c6a4" font-family="sans-serif" font-size="16" letter-spacing="1">FOTO OFICIAL PENDENTE</text>
-  <text x="625" y="198" fill="#d6c6a4" font-family="sans-serif" font-size="14" letter-spacing="1">BOSQUE · ARQUITETURA HORIZONTAL · FAMILIA</text>
+  <rect x="590" y="62" width="535" height="158" fill="#f1eadc"/>
+  <text x="625" y="112" fill="#17241d" font-family="sans-serif" font-size="20" font-weight="700" letter-spacing="3">PLACEHOLDER · OWNTIME</text>
+  <text x="625" y="155" fill="#17241d" font-family="sans-serif" font-size="16" font-weight="700" letter-spacing="1">FOTO OFICIAL PENDENTE</text>
+  <text x="625" y="192" fill="#26372c" font-family="sans-serif" font-size="14" letter-spacing="1">BOSQUE · ARQUITETURA HORIZONTAL · FAMILIA</text>
 </svg>

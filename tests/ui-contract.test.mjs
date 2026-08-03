@@ -4,6 +4,7 @@ import test from "node:test";
 
 const htmlUrl = new URL("../public/index.html", import.meta.url);
 const appUrl = new URL("../public/app.js", import.meta.url);
+const stylesUrl = new URL("../public/styles.css", import.meta.url);
 
 test("ships one semantic quiz form and one lead form", async () => {
   const html = await readFile(htmlUrl, "utf8");
@@ -38,4 +39,22 @@ test("client consumes the established domain and API interfaces", async () => {
   assert.match(app, /fetch\("\/api\/leads"/);
   assert.match(app, /utm_source:\s*"source"/);
   assert.match(app, /response\.status !== 201/);
+});
+
+test("ships stationary result copy and drop-in official logo fallbacks", async () => {
+  const [html, app, styles] = await Promise.all([
+    readFile(htmlUrl, "utf8"),
+    readFile(appUrl, "utf8"),
+    readFile(stylesUrl, "utf8")
+  ]);
+  assert.match(html, /<img id="result-logo"[^>]+hidden>/);
+  assert.match(html, /<span id="result-wordmark"/);
+  assert.match(app, /logo: "\/assets\/results\/owntime-logo-white\.png"/);
+  assert.match(app, /logo: "\/assets\/results\/nest-logo-white\.png"/);
+  assert.match(app, /resultLogo\.addEventListener\("error"/);
+  const revealCopy = styles.match(/@keyframes reveal-copy\s*\{([\s\S]*?)\n\}/)?.[1] || "";
+  assert.match(revealCopy, /opacity: 0/);
+  assert.doesNotMatch(revealCopy, /transform/);
+  assert.match(styles, /\.text-link\s*\{[\s\S]*?display: inline-flex;[\s\S]*?min-height: 48px;/);
+  assert.match(styles, /\.consent label\s*\{[\s\S]*?min-height: 48px;/);
 });

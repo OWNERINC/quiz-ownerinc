@@ -29,7 +29,11 @@ aprovados de Owntime e Nest.
 - Heros: no minimo `2400x1500`, paisagem e alta resolucao, com arquitetura ou
   natureza nos dois tercos da direita e o ponto focal dentro do recorte central
   seguro para celular.
-- Logos: SVG ou PNG transparente branco; PNG com pelo menos `1600px` de largura.
+- Logos: PNG transparente branco, com pelo menos `1600px` de largura, nos
+  caminhos exatos `public/assets/results/owntime-logo-white.png` e
+  `public/assets/results/nest-logo-white.png`.
 - A troca dos heros fica restrita as URLs das propriedades customizadas em
-  `public/styles.css`; os wordmarks de texto devem ser substituidos apenas quando
-  os arquivos oficiais transparentes forem entregues.
+  `public/styles.css`. Os elementos de imagem dos logos e seus fallbacks de texto
+  ja existem no markup; ao adicionar os dois PNGs oficiais nos caminhos acima,
+  o carregamento bem-sucedido exibe a imagem e mantem o texto acessivel sem
+  qualquer mudanca estrutural, de CSS ou JavaScript.

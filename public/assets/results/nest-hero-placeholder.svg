@@ -12,8 +12,8 @@
   <rect x="890" y="675" width="145" height="95" fill="#927159"/>
   <rect x="1080" y="675" width="145" height="95" fill="#927159"/>
   <path d="M560 860q260-140 520 0t520 0v140H560Z" fill="#201714"/>
-  <path d="M560 90h940" stroke="#ead7bd" stroke-width="2" opacity=".4"/>
-  <text x="625" y="125" fill="#fff5e8" font-family="sans-serif" font-size="20" letter-spacing="3">PLACEHOLDER · NEST</text>
-  <text x="625" y="165" fill="#e3b28d" font-family="sans-serif" font-size="16" letter-spacing="1">FOTO OFICIAL PENDENTE</text>
-  <text x="625" y="198" fill="#e3b28d" font-family="sans-serif" font-size="14" letter-spacing="1">LODGE · VALE · BEM-ESTAR</text>
+  <rect x="590" y="62" width="430" height="158" fill="#fff5e8"/>
+  <text x="625" y="112" fill="#291c18" font-family="sans-serif" font-size="20" font-weight="700" letter-spacing="3">PLACEHOLDER · NEST</text>
+  <text x="625" y="155" fill="#291c18" font-family="sans-serif" font-size="16" font-weight="700" letter-spacing="1">FOTO OFICIAL PENDENTE</text>
+  <text x="625" y="192" fill="#4a3027" font-family="sans-serif" font-size="14" letter-spacing="1">LODGE · VALE · BEM-ESTAR</text>
 </svg>

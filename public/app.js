@@ -3,10 +3,12 @@ import { QUESTIONS, classifyAnswers } from "./quiz.js";
 const RESULTS = {
   owntime: {
     title: "Owntime",
+    logo: "/assets/results/owntime-logo-white.png",
     copy: "Seu jeito de viver Gramado encontra o Owntime: natureza, espaco e convivencia para compartilhar o tempo."
   },
   nest: {
     title: "Nest",
+    logo: "/assets/results/nest-logo-white.png",
     copy: "Seu jeito de viver Gramado encontra o Nest: arquitetura, bem-estar e um refugio contemporaneo na montanha."
   }
 };
@@ -37,6 +39,8 @@ const back = document.querySelector("#back");
 const continueButton = document.querySelector("#continue");
 const result = document.querySelector("#result");
 const resultTitle = document.querySelector("#result-title");
+const resultLogo = document.querySelector("#result-logo");
+const resultWordmark = document.querySelector("#result-wordmark");
 const resultCopy = document.querySelector("#result-copy");
 const resultLink = document.querySelector("#result-link");
 const leadForm = document.querySelector("#lead-form");
@@ -69,7 +73,10 @@ function showResult() {
   state.result = classification.result;
   const content = RESULTS[state.result];
   result.dataset.result = state.result;
-  resultTitle.textContent = content.title;
+  resultWordmark.textContent = content.title;
+  resultLogo.hidden = true;
+  resultTitle.classList.remove("has-official-logo");
+  resultLogo.src = content.logo;
   resultCopy.textContent = content.copy;
   const destination = destinationUrls[state.result];
   if (destination) {
@@ -81,6 +88,16 @@ function showResult() {
   state.step = "result";
   resultTitle.focus();
 }
+
+resultLogo.addEventListener("load", () => {
+  resultLogo.hidden = false;
+  resultTitle.classList.add("has-official-logo");
+});
+
+resultLogo.addEventListener("error", () => {
+  resultLogo.hidden = true;
+  resultTitle.classList.remove("has-official-logo");
+});
 
 if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
   let parallaxFrame;

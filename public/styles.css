@@ -442,6 +442,7 @@ h1 em {
 }
 
 .result__veil {
+  inset: 12rem -4% -4%;
   z-index: -1;
   background: rgb(18 15 13 / 55%);
   box-shadow: inset 58vw 0 12rem rgb(16 14 12 / 94%), inset 0 -14rem 10rem rgb(16 14 12 / 52%);
@@ -464,6 +465,23 @@ h1 em {
   font-weight: 400;
   letter-spacing: -.065em;
   line-height: .82;
+}
+
+.result__logo {
+  width: min(100%, 32rem);
+  max-height: 8rem;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.has-official-logo .result__wordmark {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 .result__copy {
@@ -496,7 +514,9 @@ h1 em {
 }
 
 .text-link {
+  display: inline-flex;
   min-height: 48px;
+  align-items: center;
   padding: .9rem 0;
   color: var(--cream);
   font-size: .74rem;
@@ -597,6 +617,13 @@ h1 em {
   line-height: 1.55;
 }
 
+.consent label {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  cursor: pointer;
+}
+
 .consent input {
   width: 1.35rem;
   height: 1.35rem;
@@ -666,7 +693,7 @@ noscript {
 }
 
 @keyframes reveal-copy {
-  from { opacity: 0; transform: translate3d(0, 12px, 0); }
+  from { opacity: 0; }
 }
 
 @media (min-width: 48rem) {
