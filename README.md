@@ -36,6 +36,7 @@ pelo verificador agregado do workspace.
 | Variavel | Obrigatoria | Visibilidade e uso |
 | --- | --- | --- |
 | `PORT` | Nao | Porta do servidor; padrao `4182`. |
+| `PUBLIC_ORIGIN` | Sim em publicacao | Origem HTTPS publica esperada (por exemplo, `https://quiz.ownerinc.com.br`); autoridade para validar `Origin` atras do terminador TLS. |
 | `PRIVACY_POLICY_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
 | `OWNTIME_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
 | `NEST_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
@@ -44,6 +45,11 @@ pelo verificador agregado do workspace.
 
 Nao versione `.env` nem valores reais de webhook. As tres URLs publicas precisam
 usar HTTPS; configuracao ausente ou invalida impede a inicializacao.
+
+Em desenvolvimento sem `PUBLIC_ORIGIN`, a validacao de origem aceita apenas a
+origem HTTP/HTTPS local efetivamente atendida (`localhost`, `127.0.0.1` ou
+`::1`). Em publicacao, configure `PUBLIC_ORIGIN` com a origem HTTPS externa. O
+servidor nao confia em `Forwarded`, `X-Forwarded-Host` ou `X-Forwarded-Proto`.
 
 ## Contrato do webhook
 
@@ -90,7 +96,16 @@ erro de rede ou resposta nao bem-sucedida do webhook retornam `502`; nao ha fila
 persistencia local nem confirmacao falsa, e o usuario recebe orientacao para
 tentar novamente.
 
-## Pendencias para publicacao
+## Gate de publicacao
+
+O endpoint de leads precisa de rate limiting na borda (CDN, WAF, gateway ou
+reverse proxy) antes de qualquer publicacao. Como a topologia de producao ainda
+nao foi definida, este preview deliberadamente nao usa limite em memoria no
+processo Node: esse limite seria inconsistente entre replicas e identificaria o
+proxy compartilhado em vez do visitante. A publicacao fica bloqueada ate a
+regra de borda ser configurada e validada.
+
+## Assets pendentes para publicacao
 
 Esta versao de preview usa placeholders locais claramente identificados para as
 cenas de resultado. Ela nao esta pronta para deploy de producao. Antes da

@@ -438,7 +438,7 @@ h1 em {
   background-image: var(--result-hero);
   background-position: 52% center;
   background-size: cover;
-  transform: translate3d(0, calc(var(--parallax) * 24px), 0) scale(1.06);
+  transform: translate3d(0, calc(var(--parallax) * 12px), 0) scale(1.06);
 }
 
 .result__veil {
@@ -446,7 +446,7 @@ h1 em {
   z-index: -1;
   background: rgb(18 15 13 / 55%);
   box-shadow: inset 58vw 0 12rem rgb(16 14 12 / 94%), inset 0 -14rem 10rem rgb(16 14 12 / 52%);
-  transform: translate3d(0, calc(var(--parallax) * 12px), 0);
+  transform: none;
 }
 
 .result__content {
@@ -736,6 +736,11 @@ noscript {
 
   .result__media {
     background-position: center;
+    transform: translate3d(0, calc(var(--parallax) * 24px), 0) scale(1.06);
+  }
+
+  .result__veil {
+    transform: translate3d(0, calc(var(--parallax) * 12px), 0);
   }
 
   .result__content {

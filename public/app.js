@@ -26,6 +26,8 @@ const utm = Object.fromEntries(Object.entries(utmMap)
   .filter(([queryKey]) => params.has(queryKey))
   .map(([queryKey, payloadKey]) => [payloadKey, params.get(queryKey)]));
 const destinationUrls = {};
+const retryMessage = "Nao conseguimos iniciar o atendimento. Tente novamente.";
+let configReady = false;
 
 const intro = document.querySelector("#intro");
 const quiz = document.querySelector("#quiz");
@@ -153,6 +155,11 @@ document.querySelector("#show-lead-form").addEventListener("click", () => {
 leadForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   leadError.hidden = true;
+  if (!configReady) {
+    leadError.textContent = "Os links oficiais ainda nao foram carregados. Atualize a pagina antes de enviar.";
+    leadError.hidden = false;
+    return;
+  }
   submitLead.disabled = true;
 
   const fields = new FormData(leadForm);
@@ -166,6 +173,7 @@ leadForm.addEventListener("submit", async (event) => {
     utm
   };
 
+  let responseError;
   try {
     const response = await fetch("/api/leads", {
       method: "POST",
@@ -174,19 +182,25 @@ leadForm.addEventListener("submit", async (event) => {
     });
     if (response.status !== 201) {
       const body = await response.json().catch(() => ({}));
-      throw new Error(body.error || "Nao foi possivel enviar seus dados. Tente novamente.");
+      responseError = typeof body.error === "string" ? body.error : retryMessage;
+      throw new Error();
     }
     state.step = "success";
     leadForm.hidden = true;
     success.hidden = false;
     document.querySelector("#success-title").focus();
-  } catch (error) {
-    leadError.textContent = error.message;
+  } catch {
+    leadError.textContent = responseError || retryMessage;
     leadError.hidden = false;
   } finally {
-    submitLead.disabled = false;
+    submitLead.disabled = !configReady;
   }
 });
+
+function requireHttpsUrl(value) {
+  if (typeof value !== "string" || new URL(value).protocol !== "https:") throw new Error();
+  return value;
+}
 
 fetch("/api/config")
   .then((response) => {
@@ -194,15 +208,18 @@ fetch("/api/config")
     return response.json();
   })
   .then((config) => {
-    document.querySelector('[data-config="privacyPolicyUrl"]').href = config.privacyPolicyUrl;
-    destinationUrls.owntime = config.owntimeUrl;
-    destinationUrls.nest = config.nestUrl;
+    const privacyPolicyUrl = requireHttpsUrl(config.privacyPolicyUrl);
+    destinationUrls.owntime = requireHttpsUrl(config.owntimeUrl);
+    destinationUrls.nest = requireHttpsUrl(config.nestUrl);
+    document.querySelector('[data-config="privacyPolicyUrl"]').href = privacyPolicyUrl;
+    configReady = true;
+    submitLead.disabled = false;
     if (state.result && destinationUrls[state.result]) {
       resultLink.href = destinationUrls[state.result];
       resultLink.hidden = false;
     }
   })
   .catch(() => {
-    pageError.textContent = "Nao foi possivel carregar os links oficiais. Atualize a pagina e tente novamente.";
+    pageError.textContent = "Nao foi possivel carregar a Politica de Privacidade e os links oficiais. Atualize a pagina para tentar novamente; o envio permanece indisponivel.";
     pageError.hidden = false;
   });

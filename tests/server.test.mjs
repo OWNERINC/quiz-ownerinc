@@ -18,10 +18,17 @@ const validInput = {
   utm: { source: "instagram", ignored: "drop" }
 };
 
-const publicOptions = {
+const publicConfig = {
   privacyPolicyUrl: "https://ownerinc.com.br/politica-de-privacidade/",
   owntimeUrl: "https://owntime.com.br/",
   nestUrl: "https://nestgramado.com.br/"
+};
+const publicOptions = {
+  ...publicConfig,
+  publicOrigin: null,
+  webhookUrl: null,
+  webhookToken: null,
+  fetchImplementation: fetch
 };
 
 async function withServer(options, callback) {
@@ -82,7 +89,10 @@ test("keeps only recognized string UTM values", () => {
 });
 
 test("rejects missing or invalid public configuration", () => {
-  assert.throws(() => createServer(), new TypeError("Configuracao publica invalida."));
+  assert.throws(
+    () => createServer({ ...publicOptions, privacyPolicyUrl: "" }),
+    new TypeError("Configuracao publica invalida.")
+  );
   assert.throws(
     () => createServer({ ...publicOptions, nestUrl: "http://nestgramado.com.br/" }),
     new TypeError("Configuracao publica invalida.")
@@ -93,8 +103,43 @@ test("exposes only public configuration", async () => {
   await withServer({ ...publicOptions, webhookUrl: "https://secret.example/", webhookToken: "secret" }, async (baseUrl) => {
     const response = await fetch(`${baseUrl}/api/config`);
     assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), publicOptions);
+    assert.deepEqual(await response.json(), publicConfig);
   });
+});
+
+test("uses configured HTTPS public origin behind TLS termination", async () => {
+  await withServer({
+    ...publicOptions,
+    publicOrigin: "https://quiz.ownerinc.com.br",
+    webhookUrl: "https://example.com/lead",
+    fetchImplementation: async () => ({ ok: true })
+  }, async (baseUrl) => {
+    const response = await postLead(baseUrl, validInput, {
+      Origin: "https://quiz.ownerinc.com.br",
+      "X-Forwarded-Proto": "http"
+    });
+    assert.equal(response.status, 201);
+  });
+});
+
+test("rejects public-origin mismatches and does not trust forwarded headers", async () => {
+  await withServer({ ...publicOptions, publicOrigin: "https://quiz.ownerinc.com.br" }, async (baseUrl) => {
+    assert.equal((await postLead(baseUrl, validInput, { Origin: "https://foreign.example" })).status, 400);
+  });
+  await withServer(publicOptions, async (baseUrl) => {
+    assert.equal((await postLead(baseUrl, validInput, {
+      Origin: baseUrl.replace("http:", "https:"),
+      "X-Forwarded-Proto": "https"
+    })).status, 400);
+  });
+});
+
+test("accepts only HTTPS public origins outside local development", () => {
+  assert.throws(
+    () => createServer({ ...publicOptions, publicOrigin: "http://quiz.ownerinc.com.br" }),
+    new TypeError("PUBLIC_ORIGIN invalida.")
+  );
+  assert.doesNotThrow(() => createServer({ ...publicOptions, publicOrigin: "http://localhost:4182" }));
 });
 
 test("forwards the recalculated lead and optional bearer token", async () => {
@@ -188,5 +233,14 @@ test("serves public files with restrictive security headers", async () => {
     assert.equal(response.headers.get("content-security-policy"), "default-src 'self'; base-uri 'none'; connect-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data:; script-src 'self'; style-src 'self'");
     assert.match(await response.text(), /export const QUESTIONS/);
     assert.equal((await fetch(`${baseUrl}/missing.txt`)).status, 404);
+  });
+});
+
+test("serves licensed font formats with their MIME types", async () => {
+  await withServer(publicOptions, async (baseUrl) => {
+    const otf = await fetch(`${baseUrl}/assets/fonts/novelin-regular.otf`);
+    const ttf = await fetch(`${baseUrl}/assets/fonts/signaturia-regular.ttf`);
+    assert.equal(otf.headers.get("content-type"), "font/otf");
+    assert.equal(ttf.headers.get("content-type"), "font/ttf");
   });
 });

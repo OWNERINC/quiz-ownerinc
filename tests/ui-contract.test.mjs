@@ -21,6 +21,8 @@ test("ships one semantic quiz form and one lead form", async () => {
   assert.match(html, /type="email"/);
   assert.match(html, /type="checkbox"/);
   assert.match(html, /role="alert"/);
+  assert.equal((html.match(/<form[^>]+id="quiz-form"/g) || []).length, 1);
+  assert.equal((html.match(/<form[^>]+id="lead-form"/g) || []).length, 1);
 });
 
 test("keeps result, lead form and success as distinct journey stages", async () => {
@@ -33,12 +35,21 @@ test("keeps result, lead form and success as distinct journey stages", async () 
 });
 
 test("client consumes the established domain and API interfaces", async () => {
-  const app = await readFile(appUrl, "utf8");
+  const [html, app] = await Promise.all([readFile(htmlUrl, "utf8"), readFile(appUrl, "utf8")]);
   assert.match(app, /import \{ QUESTIONS, classifyAnswers \} from "\.\/quiz\.js"/);
   assert.match(app, /fetch\("\/api\/config"/);
   assert.match(app, /fetch\("\/api\/leads"/);
   assert.match(app, /utm_source:\s*"source"/);
   assert.match(app, /response\.status !== 201/);
+  assert.match(html, /id="submit-lead"[^>]+disabled/);
+  assert.match(app, /Nao conseguimos iniciar o atendimento\. Tente novamente\./);
+  assert.match(app, /new URL\(value\)\.protocol !== "https:"/);
+  assert.match(app, /submitLead\.disabled = false/);
+});
+
+test("uses the approved result CTA", async () => {
+  const html = await readFile(htmlUrl, "utf8");
+  assert.match(html, /<span>Falar com um especialista<\/span>/);
 });
 
 test("ships stationary result copy and drop-in official logo fallbacks", async () => {
@@ -57,4 +68,12 @@ test("ships stationary result copy and drop-in official logo fallbacks", async (
   assert.doesNotMatch(revealCopy, /transform/);
   assert.match(styles, /\.text-link\s*\{[\s\S]*?display: inline-flex;[\s\S]*?min-height: 48px;/);
   assert.match(styles, /\.consent label\s*\{[\s\S]*?min-height: 48px;/);
+});
+
+test("keeps mobile parallax below the desktop amplitude and layer count", async () => {
+  const styles = await readFile(stylesUrl, "utf8");
+  assert.match(styles, /\.result__media\s*\{[\s\S]*?calc\(var\(--parallax\) \* 12px\)/);
+  assert.match(styles, /\.result__veil\s*\{[\s\S]*?transform: none;/);
+  assert.match(styles, /@media \(min-width: 48rem\)[\s\S]*?\.result__media\s*\{[\s\S]*?calc\(var\(--parallax\) \* 24px\)/);
+  assert.match(styles, /@media \(min-width: 48rem\)[\s\S]*?\.result__veil\s*\{[\s\S]*?calc\(var\(--parallax\) \* 12px\)/);
 });

@@ -17,8 +17,10 @@ const contentTypes = {
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".js": "text/javascript; charset=utf-8",
+  ".otf": "font/otf",
   ".png": "image/png",
   ".svg": "image/svg+xml",
+  ".ttf": "font/ttf",
   ".webp": "image/webp",
   ".woff2": "font/woff2"
 };
@@ -50,11 +52,14 @@ async function readJson(request) {
   return JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
 }
 
-function isAllowedOrigin(request) {
+function isAllowedOrigin(request, publicOrigin) {
   if (!request.headers.origin) return true;
   try {
     const protocol = request.socket.encrypted ? "https:" : "http:";
-    return new URL(request.headers.origin).origin === new URL(`${protocol}//${request.headers.host}`).origin;
+    const localOrigin = new URL(`${protocol}//${request.headers.host}`);
+    const expectedOrigin = publicOrigin || localOrigin.origin;
+    if (!publicOrigin && !["localhost", "127.0.0.1", "::1"].includes(localOrigin.hostname)) return false;
+    return new URL(request.headers.origin).origin === expectedOrigin;
   } catch {
     return false;
   }
@@ -119,16 +124,32 @@ function validatePublicConfig(config) {
   }
 }
 
+function normalizePublicOrigin(value) {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    const isLocal = ["localhost", "127.0.0.1", "::1"].includes(url.hostname);
+    if ((!isLocal && url.protocol !== "https:") ||
+        (isLocal && url.protocol !== "http:" && url.protocol !== "https:") ||
+        url.username || url.password || url.pathname !== "/" || url.search || url.hash) throw new Error();
+    return url.origin;
+  } catch {
+    throw new TypeError("PUBLIC_ORIGIN invalida.");
+  }
+}
+
 export function createServer({
   privacyPolicyUrl = process.env.PRIVACY_POLICY_URL,
   owntimeUrl = process.env.OWNTIME_URL,
   nestUrl = process.env.NEST_URL,
   webhookUrl = process.env.LEAD_WEBHOOK_URL,
   webhookToken = process.env.LEAD_WEBHOOK_TOKEN,
+  publicOrigin = process.env.PUBLIC_ORIGIN,
   fetchImplementation = fetch
 } = {}) {
   const publicConfig = { privacyPolicyUrl, owntimeUrl, nestUrl };
   validatePublicConfig(publicConfig);
+  const expectedOrigin = normalizePublicOrigin(publicOrigin);
 
   return http.createServer(async (request, response) => {
     setSecurityHeaders(response);
@@ -137,7 +158,7 @@ export function createServer({
       const url = new URL(request.url, "http://localhost");
       if (request.method === "POST" && url.pathname === "/api/leads") {
         const contentType = request.headers["content-type"]?.split(";", 1)[0].trim().toLowerCase();
-        if (contentType !== "application/json" || !isAllowedOrigin(request)) {
+        if (contentType !== "application/json" || !isAllowedOrigin(request, expectedOrigin)) {
           sendJson(response, 400, { error: "Solicitacao invalida." });
           return;
         }
