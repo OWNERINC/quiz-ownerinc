@@ -29,6 +29,7 @@ const intro = document.querySelector("#intro");
 const quiz = document.querySelector("#quiz");
 const quizForm = document.querySelector("#quiz-form");
 const progress = document.querySelector("#quiz-progress");
+const progressSegments = [...document.querySelectorAll(".progress-track span")];
 const prompt = document.querySelector("#question-prompt");
 const radios = [...document.querySelectorAll('input[name="answer"]')];
 const labels = radios.map((radio) => document.querySelector(`label[for="${radio.id}"]`));
@@ -48,6 +49,7 @@ const pageError = document.querySelector("#page-error");
 function renderQuestion({ focus = false } = {}) {
   const question = QUESTIONS[state.questionIndex];
   progress.textContent = `Pergunta ${state.questionIndex + 1} de ${QUESTIONS.length}`;
+  progressSegments.forEach((segment, index) => segment.classList.toggle("is-active", index <= state.questionIndex));
   prompt.textContent = question.prompt;
   question.options.forEach((option, index) => {
     radios[index].value = option.value;
@@ -75,8 +77,24 @@ function showResult() {
     resultLink.hidden = false;
   }
   result.hidden = false;
+  requestAnimationFrame(() => result.classList.add("is-revealed"));
   state.step = "result";
   resultTitle.focus();
+}
+
+if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  let parallaxFrame;
+  const updateParallax = () => {
+    parallaxFrame = null;
+    if (result.hidden) return;
+    const value = Math.min(1, Math.max(0, -result.getBoundingClientRect().top / innerHeight));
+    result.style.setProperty("--parallax", value.toFixed(3));
+  };
+  const queueParallax = () => {
+    if (!parallaxFrame) parallaxFrame = requestAnimationFrame(updateParallax);
+  };
+  addEventListener("scroll", queueParallax, { passive: true });
+  addEventListener("resize", queueParallax);
 }
 
 document.querySelector("#start").addEventListener("click", () => {

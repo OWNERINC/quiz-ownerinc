@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Placeholder da fotografia hero do Nest</title>
+  <desc id="desc">Direcao de arte temporaria: lodge contemplativo na montanha, arquitetura organica contemporanea, profundidade de vale e atmosfera de bem-estar, com area escura livre a esquerda.</desc>
+  <rect width="1600" height="1000" fill="#291c18"/>
+  <rect x="560" y="0" width="1040" height="1000" fill="#4a3027"/>
+  <circle cx="1280" cy="220" r="165" fill="#d09a68" opacity=".42"/>
+  <path d="M560 555 780 290 940 485 1110 250 1370 535 1600 340v660H560Z" fill="#684638"/>
+  <path d="M560 670 790 470 985 640 1190 430 1600 720v280H560Z" fill="#35251f" opacity=".86"/>
+  <path d="M755 615q305-245 610 0v205H755Z" fill="#bf7650"/>
+  <path d="M825 605q240-160 470 0" fill="none" stroke="#ead7bd" stroke-width="35"/>
+  <rect x="825" y="650" width="470" height="170" fill="#52362c"/>
+  <rect x="890" y="675" width="145" height="95" fill="#927159"/>
+  <rect x="1080" y="675" width="145" height="95" fill="#927159"/>
+  <path d="M560 860q260-140 520 0t520 0v140H560Z" fill="#201714"/>
+  <path d="M560 90h940" stroke="#ead7bd" stroke-width="2" opacity=".4"/>
+  <text x="625" y="125" fill="#fff5e8" font-family="sans-serif" font-size="20" letter-spacing="3">PLACEHOLDER · NEST</text>
+  <text x="625" y="165" fill="#e3b28d" font-family="sans-serif" font-size="16" letter-spacing="1">FOTO OFICIAL PENDENTE</text>
+  <text x="625" y="198" fill="#e3b28d" font-family="sans-serif" font-size="14" letter-spacing="1">LODGE · VALE · BEM-ESTAR</text>
+</svg>

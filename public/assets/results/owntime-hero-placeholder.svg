@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Placeholder da fotografia hero do Owntime</title>
+  <desc id="desc">Direcao de arte temporaria: refugio familiar aquecido, arquitetura horizontal no bosque e folhagem em primeiro plano, com area escura livre a esquerda.</desc>
+  <rect width="1600" height="1000" fill="#17241d"/>
+  <rect x="560" y="0" width="1040" height="1000" fill="#26372c"/>
+  <circle cx="1220" cy="210" r="170" fill="#bba579" opacity=".34"/>
+  <path d="M560 610 780 385 925 520 1115 305 1440 610Z" fill="#344c3d"/>
+  <path d="M710 655h700v185H710z" fill="#a98e62"/>
+  <path d="M760 505h560l115 150H650z" fill="#d6c6a4"/>
+  <rect x="780" y="680" width="150" height="160" fill="#1d2b23"/>
+  <rect x="975" y="680" width="170" height="105" fill="#394c3e"/>
+  <rect x="1190" y="680" width="170" height="105" fill="#394c3e"/>
+  <g fill="#132019">
+    <circle cx="660" cy="830" r="125"/><circle cx="790" cy="920" r="150"/>
+    <circle cx="1450" cy="830" r="180"/><circle cx="1270" cy="945" r="145"/>
+  </g>
+  <path d="M560 90h940" stroke="#d6c6a4" stroke-width="2" opacity=".4"/>
+  <text x="625" y="125" fill="#f1eadc" font-family="sans-serif" font-size="20" letter-spacing="3">PLACEHOLDER · OWNTIME</text>
+  <text x="625" y="165" fill="#d6c6a4" font-family="sans-serif" font-size="16" letter-spacing="1">FOTO OFICIAL PENDENTE</text>
+  <text x="625" y="198" fill="#d6c6a4" font-family="sans-serif" font-size="14" letter-spacing="1">BOSQUE · ARQUITETURA HORIZONTAL · FAMILIA</text>
+</svg>

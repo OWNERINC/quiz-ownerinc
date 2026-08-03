@@ -5,69 +5,111 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Descubra qual refugio Ownerinc em Gramado combina com seu jeito de viver.">
   <title>Descubra seu refugio em Gramado | Ownerinc</title>
+  <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
   <main>
-    <section id="intro" aria-labelledby="intro-title">
-      <p>Ownerinc</p>
-      <h1 id="intro-title">Qual refugio combina com o seu jeito de viver Gramado?</h1>
-      <p>Responda a cinco perguntas e descubra o empreendimento mais alinhado ao que voce valoriza.</p>
-      <button id="start" type="button">Descobrir meu refugio</button>
+    <section id="intro" class="intro" aria-labelledby="intro-title">
+      <header class="brand-lockup">
+        <img src="/assets/brand/ownerinc-logo-white.png" alt="Ownerinc" width="432" height="108">
+        <span>Gramado, Serra Gaucha</span>
+      </header>
+      <div class="intro__content">
+        <p class="eyebrow">Uma escolha que comeca pelo seu tempo</p>
+        <h1 id="intro-title">Qual refugio combina com o seu jeito de viver <em>Gramado?</em></h1>
+        <p class="intro__summary">Cinco perguntas para revelar o empreendimento mais alinhado ao que voce valoriza.</p>
+        <button id="start" class="button button--primary" type="button">
+          <span>Descobrir meu refugio</span><span class="button__mark" aria-hidden="true">↗</span>
+        </button>
+      </div>
+      <p class="intro__edition" aria-hidden="true">01 / 05</p>
     </section>
 
-    <section id="quiz" aria-labelledby="quiz-title" hidden>
-      <h2 id="quiz-title">Seu jeito de viver Gramado</h2>
-      <p id="quiz-progress" aria-live="polite">Pergunta 1 de 5</p>
-      <form id="quiz-form">
+    <section id="quiz" class="quiz" aria-labelledby="quiz-title" hidden>
+      <header class="quiz__header">
+        <img src="/assets/brand/ownerinc-icon-white.png" alt="" width="56" height="56">
+        <div>
+          <p class="eyebrow">Afinidade Ownerinc</p>
+          <h2 id="quiz-title">Seu jeito de viver Gramado</h2>
+        </div>
+      </header>
+      <div class="quiz__progress">
+        <p id="quiz-progress" aria-live="polite">Pergunta 1 de 5</p>
+        <div class="progress-track" aria-hidden="true">
+          <span class="is-active"></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+      <form id="quiz-form" class="quiz__form">
         <fieldset>
           <legend id="question-prompt" tabindex="-1">A essencia do seu refugio ideal na Serra Gaucha esta em:</legend>
-          <div>
+          <div class="answer-choice">
             <input id="answer-owntime" type="radio" name="answer" value="owntime" required>
             <label for="answer-owntime">Um ambiente amplo, conectado ao bosque e pensado para a convivencia.</label>
           </div>
-          <div>
+          <div class="answer-choice">
             <input id="answer-nest" type="radio" name="answer" value="nest" required>
             <label for="answer-nest">Uma arquitetura organica e contemporanea, concebida como um refugio de montanha.</label>
           </div>
         </fieldset>
-        <button id="back" type="button" disabled>Voltar</button>
-        <button id="continue" type="submit" disabled>Continuar</button>
+        <div class="quiz__actions">
+          <button id="back" class="button button--quiet" type="button" disabled>Voltar</button>
+          <button id="continue" class="button button--primary" type="submit" disabled>Continuar</button>
+        </div>
       </form>
     </section>
 
-    <section id="result" aria-labelledby="result-title" aria-live="polite" hidden>
-      <p>Seu resultado</p>
-      <h2 id="result-title" tabindex="-1"></h2>
-      <p id="result-copy"></p>
-      <a id="result-link" hidden>Conhecer o empreendimento</a>
-      <button id="show-lead-form" type="button">Quero saber mais</button>
+    <section id="result" class="result" aria-labelledby="result-title" aria-live="polite" hidden>
+      <div class="result__media" aria-hidden="true"></div>
+      <div class="result__veil" aria-hidden="true"></div>
+      <div class="result__content">
+        <p class="eyebrow">Seu resultado de afinidade</p>
+        <h2 id="result-title" tabindex="-1"></h2>
+        <p id="result-copy" class="result__copy"></p>
+        <div class="result__actions">
+          <button id="show-lead-form" class="button button--light" type="button">
+            <span>Quero saber mais</span><span class="button__mark" aria-hidden="true">↗</span>
+          </button>
+          <a id="result-link" class="text-link" hidden>Conhecer o empreendimento</a>
+        </div>
+        <p class="result__note">Resultado indicativo de afinidade, sem hierarquia entre os empreendimentos.</p>
+      </div>
+      <p class="result__index" aria-hidden="true">Ownerinc / Gramado</p>
     </section>
 
-    <form id="lead-form" aria-labelledby="lead-title" hidden>
-      <h2 id="lead-title" tabindex="-1">Fale com a Ownerinc</h2>
-      <p>Preencha seus dados para receber mais informacoes sobre o seu resultado.</p>
+    <form id="lead-form" class="lead-form" aria-labelledby="lead-title" hidden>
+      <header class="lead-form__header">
+        <p class="eyebrow">Proximo passo</p>
+        <h2 id="lead-title" tabindex="-1">Fale com a Ownerinc</h2>
+        <p>Preencha seus dados para receber mais informacoes sobre o seu resultado.</p>
+      </header>
 
-      <label for="name">Nome</label>
-      <input id="name" name="name" type="text" autocomplete="name" minlength="2" maxlength="120" required>
+      <div class="field">
+        <label for="name">Nome</label>
+        <input id="name" name="name" type="text" autocomplete="name" minlength="2" maxlength="120" required>
+      </div>
 
-      <label for="whatsapp">WhatsApp com DDD</label>
-      <input id="whatsapp" name="whatsapp" type="tel" autocomplete="tel" inputmode="tel" required>
+      <div class="field">
+        <label for="whatsapp">WhatsApp com DDD</label>
+        <input id="whatsapp" name="whatsapp" type="tel" autocomplete="tel" inputmode="tel" required>
+      </div>
 
-      <label for="email">E-mail</label>
-      <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required>
+      <div class="field">
+        <label for="email">E-mail</label>
+        <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required>
+      </div>
 
-      <div>
+      <div class="consent">
         <input id="consent" name="consent" type="checkbox" required>
         <label for="consent">Autorizo a Ownerinc a entrar em contato sobre os empreendimentos apresentados e
         declaro que li a <a data-config="privacyPolicyUrl">Politica de Privacidade</a>.</label>
       </div>
 
       <p id="lead-error" role="alert" hidden></p>
-      <button id="submit-lead" type="submit">Enviar meus dados</button>
+      <button id="submit-lead" class="button button--dark" type="submit">Enviar meus dados</button>
     </form>
 
-    <section id="success" aria-labelledby="success-title" aria-live="polite" hidden>
+    <section id="success" class="success" aria-labelledby="success-title" aria-live="polite" hidden>
       <h2 id="success-title" tabindex="-1">Recebemos seus dados</h2>
       <p>A equipe Ownerinc entrara em contato com voce.</p>
     </section>
