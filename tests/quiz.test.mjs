@@ -5,43 +5,43 @@ import { QUESTIONS, classifyAnswers } from "../public/quiz.js";
 test("publishes the five approved binary questions exactly", () => {
   assert.deepEqual(QUESTIONS, [
     {
-      id: "essencia",
-      prompt: "A essencia do seu refugio ideal na Serra Gaucha esta em:",
+      id: "acomodacao",
+      prompt: "Quando imagina sua estadia em Gramado, qual configuração mais combina com você?",
       options: [
-        { value: "owntime", label: "Um ambiente amplo, conectado ao bosque e pensado para a convivencia." },
-        { value: "nest", label: "Uma arquitetura organica e contemporanea, concebida como um refugio de montanha." }
+        { value: "owntime", label: "A amplitude e a sensação de casa, com ambientes pensados para reunir diferentes gerações." },
+        { value: "nest", label: "A praticidade de um apartamento contemporâneo, integrado à atmosfera de um Mountain Lodge." }
       ]
     },
     {
-      id: "ferias",
-      prompt: "Ao imaginar suas ferias em Gramado, o que mais chama sua atencao?",
+      id: "atmosfera",
+      prompt: "Qual atmosfera você prefere encontrar ao chegar?",
       options: [
-        { value: "owntime", label: "O aconchego de uma casa espacosa, com ambientes para diferentes geracoes e servicos de hospitalidade." },
-        { value: "nest", label: "Uma experiencia voltada ao wellness, ao autocuidado e ao conforto sensorial." }
+        { value: "owntime", label: "Um refúgio conectado ao bosque, com natureza e convivência marcando o ritmo dos dias." },
+        { value: "nest", label: "Um refúgio de montanha orgânico e intimista, voltado ao conforto sensorial e à contemplação." }
       ]
     },
     {
       id: "convivencia",
-      prompt: "Qual estilo de convivencia mais combina com voce?",
+      prompt: "Qual ritmo de convivência mais combina com você?",
       options: [
-        { value: "owntime", label: "Casas, areas abertas e espacos de convivencia onde o paisagismo acompanha a vida em familia." },
-        { value: "nest", label: "Arquitetura integrada a natureza, apartamentos contemporaneos e areas de lazer reunidas em um Mountain Lodge." }
+        { value: "owntime", label: "Alternar momentos em família com experiências compartilhadas e atividades para diferentes idades." },
+        { value: "nest", label: "Equilibrar momentos de lazer com pausas de autocuidado, silêncio e bem-estar." }
       ]
     },
     {
       id: "localizacao",
-      prompt: "Como voce imagina a localizacao perfeita para seu refugio?",
+      prompt: "Que relação com Gramado você deseja viver?",
       options: [
-        { value: "owntime", label: "Cercada pela natureza, com atmosfera de bosque e acesso as experiencias de Gramado." },
-        { value: "nest", label: "Na Avenida Borges de Medeiros, combinando proximidade urbana e vista para o vale." }
+        { value: "owntime", label: "Sentir-se em meio à natureza, mantendo acesso às experiências da cidade." },
+        { value: "nest", label: "Estar próximo à vida urbana, preservando a relação com a paisagem e o vale." }
       ]
     },
     {
-      id: "fim-de-tarde",
-      prompt: "O fim de tarde perfeito com a familia termina com:",
+      id: "experiencia",
+      prompt: "Qual experiência você mais deseja levar das suas férias?",
       options: [
-        { value: "owntime", label: "Um passeio entre areas verdes e espacos de convivencia, aproveitando a tranquilidade da Serra." },
-        { value: "nest", label: "Momentos nas areas de lazer seguidos pela contemplacao do vale em um refugio de montanha." }
+        { value: "owntime", label: "Criar memórias em família, com espaço, acolhimento e tempo para estar junto." },
+        { value: "nest", label: "Desacelerar em uma experiência contemporânea, sensorial e contemplativa." }
       ]
     }
   ]);
@@ -57,6 +57,6 @@ test("returns the simple majority for every possible score", () => {
 });
 
 test("rejects incomplete or unknown answers", () => {
-  assert.throws(() => classifyAnswers(["owntime"]), /Respostas invalidas/);
-  assert.throws(() => classifyAnswers(["owntime", "nest", "other", "nest", "owntime"]), /Respostas invalidas/);
+  assert.throws(() => classifyAnswers(["owntime"]), /Respostas inválidas/);
+  assert.throws(() => classifyAnswers(["owntime", "nest", "other", "nest", "owntime"]), /Respostas inválidas/);
 });

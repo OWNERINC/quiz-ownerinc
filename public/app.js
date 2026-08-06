@@ -4,16 +4,16 @@ const RESULTS = {
   owntime: {
     title: "Owntime",
     logo: "/assets/results/owntime-logo-white.png",
-    copy: "Seu jeito de viver Gramado encontra o Owntime: natureza, espaco e convivencia para compartilhar o tempo."
+    copy: "Suas respostas indicam maior afinidade editorial com o Owntime, um caminho para conhecer uma proposta ligada a espaço, natureza e convivência."
   },
   nest: {
-    title: "Nest",
+    title: "Nest Mountain Lodge",
     logo: "/assets/results/nest-logo-white.png",
-    copy: "Seu jeito de viver Gramado encontra o Nest: arquitetura, bem-estar e um refugio contemporaneo na montanha."
+    copy: "Suas respostas indicam maior afinidade editorial com o Nest Mountain Lodge, um caminho para conhecer uma proposta ligada a arquitetura, bem-estar e contemplação."
   }
 };
 
-const state = { step: "intro", questionIndex: 0, answers: Array(QUESTIONS.length).fill(null), result: null };
+const state = { questionIndex: 0, answers: Array(QUESTIONS.length).fill(null), result: null };
 const utmMap = {
   utm_source: "source",
   utm_medium: "medium",
@@ -26,7 +26,7 @@ const utm = Object.fromEntries(Object.entries(utmMap)
   .filter(([queryKey]) => params.has(queryKey))
   .map(([queryKey, payloadKey]) => [payloadKey, params.get(queryKey)]));
 const destinationUrls = {};
-const retryMessage = "Nao conseguimos iniciar o atendimento. Tente novamente.";
+const retryMessage = "Não conseguimos iniciar o atendimento. Tente novamente.";
 let configReady = false;
 
 const intro = document.querySelector("#intro");
@@ -48,9 +48,9 @@ const resultLink = document.querySelector("#result-link");
 const leadForm = document.querySelector("#lead-form");
 const leadTitle = document.querySelector("#lead-title");
 const leadError = document.querySelector("#lead-error");
+const configStatus = document.querySelector("#config-status");
 const submitLead = document.querySelector("#submit-lead");
 const success = document.querySelector("#success");
-const pageError = document.querySelector("#page-error");
 
 function renderQuestion({ focus = false } = {}) {
   const question = QUESTIONS[state.questionIndex];
@@ -62,14 +62,14 @@ function renderQuestion({ focus = false } = {}) {
     radios[index].checked = state.answers[state.questionIndex] === option.value;
     labels[index].textContent = option.label;
   });
-  back.disabled = state.questionIndex === 0;
+  back.disabled = false;
+  back.textContent = state.questionIndex === 0 ? "Início" : "Voltar";
   continueButton.disabled = state.answers[state.questionIndex] === null;
   continueButton.textContent = state.questionIndex === QUESTIONS.length - 1 ? "Ver meu resultado" : "Continuar";
   if (focus) prompt.focus();
 }
 
 function showResult() {
-  state.step = "reveal";
   quiz.hidden = true;
   const classification = classifyAnswers(state.answers);
   state.result = classification.result;
@@ -80,15 +80,16 @@ function showResult() {
   resultTitle.classList.remove("has-official-logo");
   resultLogo.src = content.logo;
   resultCopy.textContent = content.copy;
+  resultLink.hidden = true;
   const destination = destinationUrls[state.result];
   if (destination) {
     resultLink.href = destination;
     resultLink.hidden = false;
   }
   result.hidden = false;
+  result.scrollIntoView({ block: "start", behavior: "instant" });
   requestAnimationFrame(() => result.classList.add("is-revealed"));
-  state.step = "result";
-  resultTitle.focus();
+  resultTitle.focus({ preventScroll: true });
 }
 
 resultLogo.addEventListener("load", () => {
@@ -117,7 +118,6 @@ if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
 }
 
 document.querySelector("#start").addEventListener("click", () => {
-  state.step = "quiz";
   intro.hidden = true;
   quiz.hidden = false;
   renderQuestion({ focus: true });
@@ -141,13 +141,41 @@ quizForm.addEventListener("submit", (event) => {
 });
 
 back.addEventListener("click", () => {
-  if (state.questionIndex === 0) return;
+  if (state.questionIndex === 0) {
+    quiz.hidden = true;
+    intro.hidden = false;
+    document.querySelector("#intro-title").focus();
+    return;
+  }
   state.questionIndex -= 1;
   renderQuestion({ focus: true });
 });
 
+function restartQuiz() {
+  state.questionIndex = 0;
+  state.answers.fill(null);
+  state.result = null;
+  quiz.hidden = true;
+  result.hidden = true;
+  result.classList.remove("is-revealed");
+  result.removeAttribute("data-result");
+  leadForm.hidden = true;
+  success.hidden = true;
+  leadForm.reset();
+  leadForm.removeAttribute("aria-busy");
+  leadError.hidden = true;
+  resultLink.hidden = true;
+  intro.hidden = false;
+  submitLead.disabled = !configReady;
+  submitLead.textContent = configReady ? "Enviar meus dados" : "Carregando…";
+  document.querySelector("#intro-title").focus();
+  scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.querySelector("#restart-result").addEventListener("click", restartQuiz);
+document.querySelector("#restart-success").addEventListener("click", restartQuiz);
+
 document.querySelector("#show-lead-form").addEventListener("click", () => {
-  state.step = "form";
   leadForm.hidden = false;
   leadTitle.focus();
 });
@@ -156,11 +184,14 @@ leadForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   leadError.hidden = true;
   if (!configReady) {
-    leadError.textContent = "Os links oficiais ainda nao foram carregados. Atualize a pagina antes de enviar.";
+    leadError.textContent = "As configurações de atendimento ainda não foram carregadas. Atualize a página antes de enviar.";
     leadError.hidden = false;
+    leadError.focus();
     return;
   }
   submitLead.disabled = true;
+  submitLead.textContent = "Enviando…";
+  leadForm.setAttribute("aria-busy", "true");
 
   const fields = new FormData(leadForm);
   const payload = {
@@ -185,15 +216,17 @@ leadForm.addEventListener("submit", async (event) => {
       responseError = typeof body.error === "string" ? body.error : retryMessage;
       throw new Error();
     }
-    state.step = "success";
     leadForm.hidden = true;
     success.hidden = false;
     document.querySelector("#success-title").focus();
   } catch {
     leadError.textContent = responseError || retryMessage;
     leadError.hidden = false;
+    leadError.focus();
   } finally {
+    leadForm.removeAttribute("aria-busy");
     submitLead.disabled = !configReady;
+    submitLead.textContent = configReady ? "Enviar meus dados" : "Carregando…";
   }
 });
 
@@ -213,13 +246,16 @@ fetch("/api/config")
     destinationUrls.nest = requireHttpsUrl(config.nestUrl);
     document.querySelector('[data-config="privacyPolicyUrl"]').href = privacyPolicyUrl;
     configReady = true;
+    configStatus.hidden = true;
     submitLead.disabled = false;
+    submitLead.textContent = "Enviar meus dados";
     if (state.result && destinationUrls[state.result]) {
       resultLink.href = destinationUrls[state.result];
       resultLink.hidden = false;
     }
   })
   .catch(() => {
-    pageError.textContent = "Nao foi possivel carregar a Politica de Privacidade e os links oficiais. Atualize a pagina para tentar novamente; o envio permanece indisponivel.";
-    pageError.hidden = false;
+    configStatus.textContent = "Não foi possível carregar a Política de Privacidade e os links oficiais. Atualize a página para tentar novamente; o envio permanece indisponível.";
+    configStatus.setAttribute("role", "alert");
+    configStatus.classList.add("form-status--error");
   });

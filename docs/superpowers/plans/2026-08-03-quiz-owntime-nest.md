@@ -588,7 +588,7 @@ Expected: todos os testes de `lp-tijolo` passam.
 
 - [ ] **Step 3: Executar verificacao agregada**
 
-Run: `npm run verify` em `C:\repo\repo`.
+Run: `npm run verify` em `C:\Ownerinc`.
 
 Expected: todos os workspaces passam. Se `interactive_deck` falhar porque a
 politica do Windows bloqueia o SWC nativo e o Turbopack recusa WASM, registrar

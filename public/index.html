@@ -3,24 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Descubra qual refugio Ownerinc em Gramado combina com seu jeito de viver.">
-  <title>Descubra seu refugio em Gramado | Ownerinc</title>
+  <meta name="description" content="Descubra sua afinidade editorial com os empreendimentos Ownerinc em Gramado.">
+  <title>Descubra sua afinidade em Gramado | Ownerinc</title>
   <link rel="stylesheet" href="/styles.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
-  <main>
+  <a class="skip-link" href="#main-content">Ir para o conteúdo</a>
+  <main id="main-content">
     <section id="intro" class="intro" aria-labelledby="intro-title">
       <header class="brand-lockup">
         <img src="/assets/brand/ownerinc-logo-white.png" alt="Ownerinc" width="432" height="108">
-        <span>Gramado, Serra Gaucha</span>
+        <span>Gramado, Serra Gaúcha</span>
       </header>
       <div class="intro__content">
-        <p class="eyebrow">Uma escolha que comeca pelo seu tempo</p>
-        <h1 id="intro-title">Qual refugio combina com o seu jeito de viver <em>Gramado?</em></h1>
-        <p class="intro__summary">Cinco perguntas para revelar o empreendimento mais alinhado ao que voce valoriza.</p>
+        <p class="eyebrow">Uma afinidade que começa pelo seu tempo</p>
+        <h1 id="intro-title" tabindex="-1">Qual forma de viver combina com o seu jeito de aproveitar <em>Gramado?</em></h1>
+        <p class="intro__summary">Cinco perguntas para sugerir uma afinidade editorial entre dois empreendimentos Ownerinc.</p>
         <button id="start" class="button button--primary" type="button">
-          <span>Descobrir meu refugio</span><span class="button__mark" aria-hidden="true">↗</span>
+          <span>Descobrir minha afinidade</span><span class="button__mark" aria-hidden="true">↗</span>
         </button>
       </div>
       <p class="intro__edition" aria-hidden="true">01 / 05</p>
@@ -42,18 +43,18 @@
       </div>
       <form id="quiz-form" class="quiz__form">
         <fieldset>
-          <legend id="question-prompt" tabindex="-1">A essencia do seu refugio ideal na Serra Gaucha esta em:</legend>
+          <legend id="question-prompt" tabindex="-1">Quando imagina sua estadia em Gramado, qual configuração mais combina com você?</legend>
           <div class="answer-choice">
             <input id="answer-owntime" type="radio" name="answer" value="owntime" required>
-            <label for="answer-owntime">Um ambiente amplo, conectado ao bosque e pensado para a convivencia.</label>
+            <label for="answer-owntime">A amplitude e a sensação de casa, com ambientes pensados para reunir diferentes gerações.</label>
           </div>
           <div class="answer-choice">
             <input id="answer-nest" type="radio" name="answer" value="nest" required>
-            <label for="answer-nest">Uma arquitetura organica e contemporanea, concebida como um refugio de montanha.</label>
+            <label for="answer-nest">A praticidade de um apartamento contemporâneo, integrado à atmosfera de um Mountain Lodge.</label>
           </div>
         </fieldset>
         <div class="quiz__actions">
-          <button id="back" class="button button--quiet" type="button" disabled>Voltar</button>
+          <button id="back" class="button button--quiet" type="button">Voltar</button>
           <button id="continue" class="button button--primary" type="submit" disabled>Continuar</button>
         </div>
       </form>
@@ -63,62 +64,66 @@
       <div class="result__media" aria-hidden="true"></div>
       <div class="result__veil" aria-hidden="true"></div>
       <div class="result__content">
-        <p class="eyebrow">Seu resultado de afinidade</p>
+        <p class="eyebrow">Sua afinidade editorial</p>
         <h2 id="result-title" tabindex="-1">
           <img id="result-logo" class="result__logo" alt="" hidden>
           <span id="result-wordmark" class="result__wordmark"></span>
         </h2>
         <p id="result-copy" class="result__copy"></p>
+        <p class="result__model">Owntime e Nest Mountain Lodge são empreendimentos Ownerinc de propriedade compartilhada. Regras e condições seguem os documentos vigentes de cada produto.</p>
         <div class="result__actions">
           <button id="show-lead-form" class="button button--light" type="button">
-            <span>Falar com um especialista</span><span class="button__mark" aria-hidden="true">↗</span>
+            <span>Falar com a equipe Ownerinc</span><span class="button__mark" aria-hidden="true">↗</span>
           </button>
           <a id="result-link" class="text-link" hidden>Conhecer o empreendimento</a>
         </div>
-        <p class="result__note">Resultado indicativo de afinidade, sem hierarquia entre os empreendimentos.</p>
+        <button id="restart-result" class="text-link text-link--button" type="button">Refazer quiz</button>
+        <p class="result__note">Sugestão editorial baseada nas preferências informadas, sem hierarquia ou garantia de adequação.</p>
       </div>
       <p class="result__index" aria-hidden="true">Ownerinc / Gramado</p>
     </section>
 
     <form id="lead-form" class="lead-form" aria-labelledby="lead-title" hidden>
       <header class="lead-form__header">
-        <p class="eyebrow">Proximo passo</p>
+        <p class="eyebrow">Próximo passo</p>
         <h2 id="lead-title" tabindex="-1">Fale com a Ownerinc</h2>
-        <p>Preencha seus dados para receber mais informacoes sobre o seu resultado.</p>
+        <p>Preencha seus dados para receber mais informações sobre o empreendimento indicado.</p>
       </header>
 
       <div class="field">
         <label for="name">Nome</label>
-        <input id="name" name="name" type="text" autocomplete="name" minlength="2" maxlength="120" required>
+        <input id="name" name="name" type="text" autocomplete="name" minlength="2" maxlength="120" aria-describedby="lead-error" required>
       </div>
 
       <div class="field">
         <label for="whatsapp">WhatsApp com DDD</label>
-        <input id="whatsapp" name="whatsapp" type="tel" autocomplete="tel" inputmode="tel" required>
+        <input id="whatsapp" name="whatsapp" type="tel" autocomplete="tel" inputmode="tel" pattern="\(?[1-9]{2}\)?\s?9?\d{4}-?\d{4}" aria-describedby="whatsapp-hint lead-error" required>
+        <small id="whatsapp-hint">Use DDD e número, por exemplo: (51) 99999-9999.</small>
       </div>
 
       <div class="field">
         <label for="email">E-mail</label>
-        <input id="email" name="email" type="email" autocomplete="email" maxlength="254" required>
+        <input id="email" name="email" type="email" autocomplete="email" maxlength="254" aria-describedby="lead-error" required>
       </div>
 
       <div class="consent">
         <input id="consent" name="consent" type="checkbox" required>
         <label for="consent">Autorizo a Ownerinc a entrar em contato sobre os empreendimentos apresentados e
-        declaro que li a <a data-config="privacyPolicyUrl">Politica de Privacidade</a>.</label>
+        declaro que li a <a data-config="privacyPolicyUrl">Política de Privacidade</a>.</label>
       </div>
 
-      <p id="lead-error" role="alert" hidden></p>
-      <button id="submit-lead" class="button button--dark" type="submit" disabled>Enviar meus dados</button>
+      <p id="config-status" class="form-status" role="status">Carregando configurações de atendimento…</p>
+      <p id="lead-error" role="alert" tabindex="-1" hidden></p>
+      <button id="submit-lead" class="button button--dark" type="submit" disabled>Carregando…</button>
     </form>
 
     <section id="success" class="success" aria-labelledby="success-title" aria-live="polite" hidden>
       <h2 id="success-title" tabindex="-1">Recebemos seus dados</h2>
-      <p>A equipe Ownerinc entrara em contato com voce.</p>
+      <p>A equipe Ownerinc entrará em contato com você.</p>
+      <button id="restart-success" class="button button--dark" type="button">Refazer quiz</button>
     </section>
 
-    <p id="page-error" role="alert" hidden></p>
-    <noscript>Ative o JavaScript para responder ao quiz e enviar o formulario.</noscript>
+    <noscript>Ative o JavaScript para responder ao quiz e enviar o formulário.</noscript>
   </main>
 </body>
 </html>

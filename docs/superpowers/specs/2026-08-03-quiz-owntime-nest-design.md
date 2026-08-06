@@ -30,16 +30,17 @@ nao fontes automaticas para claims de produto.
 
 ## Jornada
 
-1. Abertura cinematografica com a marca Ownerinc e a chamada: "Qual refugio
-   combina com o seu jeito de viver Gramado?".
+1. Abertura cinematografica com a marca Ownerinc e uma chamada sobre formas de
+   viver Gramado.
 2. O visitante inicia o quiz sem informar dados pessoais.
 3. Cada uma das cinco telas mostra uma pergunta, duas respostas, progresso
    textual e segmentado, alem dos controles Voltar e Continuar.
 4. Continuar permanece indisponivel ate existir uma resposta selecionada.
-5. Voltar preserva as escolhas feitas na sessao atual.
+5. Voltar preserva as escolhas feitas na sessao atual e, na primeira pergunta,
+   retorna a abertura.
 6. A quinta resposta inicia a revelacao cinematografica do resultado.
-7. O resultado mostra somente Owntime ou Nest, seguido do CTA "Falar com um
-   especialista".
+7. O resultado mostra somente Owntime ou Nest Mountain Lodge como afinidade
+   editorial, seguido do CTA "Falar com a equipe Ownerinc".
 8. O CTA abre no proprio resultado o formulario com nome, WhatsApp, e-mail e
    aceite obrigatorio para contato, acompanhado do link da politica de
    privacidade.
@@ -48,50 +49,51 @@ nao fontes automaticas para claims de produto.
 
 ## Perguntas
 
-### 1. Essencia do refugio
+### 1. Acomodacao
 
-**Pergunta:** A essencia do seu refugio ideal na Serra Gaucha esta em:
+**Pergunta:** Quando imagina sua estadia em Gramado, qual configuracao mais
+combina com voce?
 
-- **A, Owntime:** Um ambiente amplo, conectado ao bosque e pensado para a
-  convivencia.
-- **B, Nest:** Uma arquitetura organica e contemporanea, concebida como um
-  refugio de montanha.
+- **A, Owntime:** A amplitude e a sensacao de casa, com ambientes pensados para
+  reunir diferentes geracoes.
+- **B, Nest:** A praticidade de um apartamento contemporaneo, integrado a
+  atmosfera de um Mountain Lodge.
 
-### 2. Ferias em Gramado
+### 2. Atmosfera
 
-**Pergunta:** Ao imaginar suas ferias em Gramado, o que mais chama sua atencao?
+**Pergunta:** Qual atmosfera voce prefere encontrar ao chegar?
 
-- **A, Owntime:** O aconchego de uma casa espacosa, com ambientes para
-  diferentes geracoes e servicos de hospitalidade.
-- **B, Nest:** Uma experiencia voltada ao wellness, ao autocuidado e ao conforto
-  sensorial.
+- **A, Owntime:** Um refugio conectado ao bosque, com natureza e convivencia
+  marcando o ritmo dos dias.
+- **B, Nest:** Um refugio de montanha organico e intimista, voltado ao conforto
+  sensorial e a contemplacao.
 
-### 3. Estilo de convivencia
+### 3. Ritmo de convivencia
 
-**Pergunta:** Qual estilo de convivencia mais combina com voce?
+**Pergunta:** Qual ritmo de convivencia mais combina com voce?
 
-- **A, Owntime:** Casas, areas abertas e espacos de convivencia onde o paisagismo
-  acompanha a vida em familia.
-- **B, Nest:** Arquitetura integrada a natureza, apartamentos contemporaneos e
-  areas de lazer reunidas em um Mountain Lodge.
+- **A, Owntime:** Alternar momentos em familia com experiencias compartilhadas e
+  atividades para diferentes idades.
+- **B, Nest:** Equilibrar momentos de lazer com pausas de autocuidado, silencio e
+  bem-estar.
 
 ### 4. Localizacao
 
-**Pergunta:** Como voce imagina a localizacao perfeita para seu refugio?
+**Pergunta:** Que relacao com Gramado voce deseja viver?
 
-- **A, Owntime:** Cercada pela natureza, com atmosfera de bosque e acesso as
-  experiencias de Gramado.
-- **B, Nest:** Na Avenida Borges de Medeiros, combinando proximidade urbana e
-  vista para o vale.
+- **A, Owntime:** Sentir-se em meio a natureza, mantendo acesso as experiencias
+  da cidade.
+- **B, Nest:** Estar proximo a vida urbana, preservando a relacao com a paisagem
+  e o vale.
 
-### 5. Fim de tarde
+### 5. Experiencia desejada
 
-**Pergunta:** O fim de tarde perfeito com a familia termina com:
+**Pergunta:** Qual experiencia voce mais deseja levar das suas ferias?
 
-- **A, Owntime:** Um passeio entre areas verdes e espacos de convivencia,
-  aproveitando a tranquilidade da Serra.
-- **B, Nest:** Momentos nas areas de lazer seguidos pela contemplacao do vale em
-  um refugio de montanha.
+- **A, Owntime:** Criar memorias em familia, com espaco, acolhimento e tempo para
+  estar junto.
+- **B, Nest:** Desacelerar em uma experiencia contemporanea, sensorial e
+  contemplativa.
 
 ## Pontuacao e resultados
 
@@ -102,10 +104,12 @@ Nest. Todas as cinco perguntas sao obrigatorias.
 
 Textos aprovados:
 
-- **Owntime:** "Seu jeito de viver Gramado encontra o Owntime: natureza, espaco
-  e convivencia para compartilhar o tempo."
-- **Nest:** "Seu jeito de viver Gramado encontra o Nest: arquitetura, bem-estar
-  e um refugio contemporaneo na montanha."
+- **Owntime:** "Suas respostas indicam maior afinidade editorial com o Owntime,
+  um caminho para conhecer uma proposta ligada a espaco, natureza e
+  convivencia."
+- **Nest:** "Suas respostas indicam maior afinidade editorial com o Nest Mountain
+  Lodge, um caminho para conhecer uma proposta ligada a arquitetura, bem-estar e
+  contemplacao."
 
 O site usa sempre os termos `afinidade`, `perfil` ou `combina`. Nao usa
 `melhor investimento`, `escolha certa`, garantia de adequacao ou promessa de
@@ -140,9 +144,10 @@ O primeiro trecho de rolagem continua o parallax sem mover o texto para fora da
 area legivel. O formulario aparece imediatamente abaixo da cena. O efeito nao
 deve atrasar nem bloquear o CTA.
 
-- Owntime usa fotografia quente de natureza e convivencia, com acentos da
-  paleta verde e bege documentada.
-- Nest usa fotografia organica e contemplativa, com marrom, terracota e amarelo.
+- Enquanto os assets e MIVs de produto nao estiverem aprovados, ambos os
+  resultados permanecem no sistema visual neutro da Ownerinc.
+- A identidade especifica de Owntime ou Nest so entra depois da aprovacao dos
+  logos, fotografias e regras visuais correspondentes.
 
 Somente logos oficiais e fotografias aprovadas podem representar os produtos.
 Renders devem ser identificados como imagens ilustrativas quando essa informacao

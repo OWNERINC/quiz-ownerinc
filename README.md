@@ -40,8 +40,10 @@ pelo verificador agregado do workspace.
 | `PRIVACY_POLICY_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
 | `OWNTIME_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
 | `NEST_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
-| `LEAD_WEBHOOK_URL` | Sim para receber leads | Destino server-side; nunca e exposto pelo endpoint de configuracao. |
-| `LEAD_WEBHOOK_TOKEN` | Nao | Segredo server-side enviado como `Authorization: Bearer <token>`; nunca chega ao navegador. |
+| `NEST_WEBHOOK_URL` | Sim para receber leads Nest | Destino server-side dos leads classificados como Nest; nunca e exposto ao navegador. |
+| `NEST_WEBHOOK_TOKEN` | Nao | Token Bearer exclusivo do webhook Nest. |
+| `OWNTIME_WEBHOOK_URL` | Sim para receber leads Owntime | Destino server-side dos leads classificados como Owntime; nunca e exposto ao navegador. |
+| `OWNTIME_WEBHOOK_TOKEN` | Nao | Token Bearer exclusivo do webhook Owntime. |
 
 Nao versione `.env` nem valores reais de webhook. As tres URLs publicas precisam
 usar HTTPS; configuracao ausente ou invalida impede a inicializacao.
@@ -54,9 +56,9 @@ servidor nao confia em `Forwarded`, `X-Forwarded-Host` ou `X-Forwarded-Proto`.
 ## Contrato do webhook
 
 `POST /api/leads` valida e normaliza a entrada, recalcula o resultado a partir
-das cinco respostas e envia `POST` para `LEAD_WEBHOOK_URL` com
-`Content-Type: application/json`. Quando configurado, o token segue no header
-`Authorization`. `X-Idempotency-Key` recebe o mesmo UUID de `submissionId`.
+das cinco respostas e envia `POST` para `NEST_WEBHOOK_URL` ou
+`OWNTIME_WEBHOOK_URL`. O token correspondente segue no header `Authorization`.
+`X-Idempotency-Key` recebe o mesmo UUID de `submissionId`.
 
 Payload normalizado:
 
@@ -90,11 +92,11 @@ Payload normalizado:
 apenas cinco respostas `owntime` ou `nest`, normaliza o telefone brasileiro para
 `+55` e nao confia em `result` enviado pelo navegador.
 
-O lead so e confirmado ao navegador com HTTP `201` depois que o webhook responde
-com sucesso. Sem `LEAD_WEBHOOK_URL`, a API responde `503`. Timeout de 10 segundos,
-erro de rede ou resposta nao bem-sucedida do webhook retornam `502`; nao ha fila,
-persistencia local nem confirmacao falsa, e o usuario recebe orientacao para
-tentar novamente.
+O lead so e confirmado ao navegador com HTTP `201` depois que o webhook do
+resultado correspondente responde com sucesso. Sem a URL correspondente, a API
+responde `503`. Timeout de 10 segundos, erro de rede ou resposta nao bem-sucedida
+do webhook retornam `502`; nao ha fila, persistencia local nem confirmacao falsa,
+e o usuario recebe orientacao para tentar novamente.
 
 ## Gate de publicacao
 

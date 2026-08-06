@@ -92,14 +92,14 @@ export function validateLead(input) {
 
   if (name.length < 2 || name.length > 120) return { error: "Informe seu nome." };
   if (!/^\d{10,11}$/.test(digits)) return { error: "Informe um WhatsApp brasileiro com DDD." };
-  if (email.length > 254 || !emailPattern.test(email)) return { error: "Informe um e-mail valido." };
+  if (email.length > 254 || !emailPattern.test(email)) return { error: "Informe um e-mail válido." };
   if (input?.consent !== true) return { error: "Autorize o contato para continuar." };
 
   let classification;
   try {
     classification = classifyAnswers(input?.answers);
   } catch {
-    return { error: "Respostas invalidas." };
+    return { error: "Respostas inválidas." };
   }
 
   return {
@@ -120,7 +120,7 @@ function validatePublicConfig(config) {
       if (typeof value !== "string" || new URL(value).protocol !== "https:") throw new Error();
     }
   } catch {
-    throw new TypeError("Configuracao publica invalida.");
+    throw new TypeError("Configuração pública inválida.");
   }
 }
 
@@ -134,7 +134,7 @@ function normalizePublicOrigin(value) {
         url.username || url.password || url.pathname !== "/" || url.search || url.hash) throw new Error();
     return url.origin;
   } catch {
-    throw new TypeError("PUBLIC_ORIGIN invalida.");
+    throw new TypeError("PUBLIC_ORIGIN inválida.");
   }
 }
 
@@ -142,8 +142,10 @@ export function createServer({
   privacyPolicyUrl = process.env.PRIVACY_POLICY_URL,
   owntimeUrl = process.env.OWNTIME_URL,
   nestUrl = process.env.NEST_URL,
-  webhookUrl = process.env.LEAD_WEBHOOK_URL,
-  webhookToken = process.env.LEAD_WEBHOOK_TOKEN,
+  nestWebhookUrl = process.env.NEST_WEBHOOK_URL,
+  nestWebhookToken = process.env.NEST_WEBHOOK_TOKEN,
+  owntimeWebhookUrl = process.env.OWNTIME_WEBHOOK_URL,
+  owntimeWebhookToken = process.env.OWNTIME_WEBHOOK_TOKEN,
   publicOrigin = process.env.PUBLIC_ORIGIN,
   fetchImplementation = fetch
 } = {}) {
@@ -159,7 +161,7 @@ export function createServer({
       if (request.method === "POST" && url.pathname === "/api/leads") {
         const contentType = request.headers["content-type"]?.split(";", 1)[0].trim().toLowerCase();
         if (contentType !== "application/json" || !isAllowedOrigin(request, expectedOrigin)) {
-          sendJson(response, 400, { error: "Solicitacao invalida." });
+          sendJson(response, 400, { error: "Solicitação inválida." });
           return;
         }
 
@@ -168,8 +170,11 @@ export function createServer({
           sendJson(response, 400, { error: lead.error });
           return;
         }
-        if (!webhookUrl) {
-          sendJson(response, 503, { error: "O atendimento ainda esta sendo conectado. Tente novamente em breve." });
+        const webhook = lead.value.result === "nest"
+          ? { url: nestWebhookUrl, token: nestWebhookToken }
+          : { url: owntimeWebhookUrl, token: owntimeWebhookToken };
+        if (!webhook.url) {
+          sendJson(response, 503, { error: "O atendimento ainda está sendo conectado. Tente novamente em breve." });
           return;
         }
 
@@ -185,23 +190,23 @@ export function createServer({
 
         let webhookResponse;
         try {
-          webhookResponse = await fetchImplementation(webhookUrl, {
+          webhookResponse = await fetchImplementation(webhook.url, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
               "X-Idempotency-Key": submissionId,
-              ...(webhookToken ? { Authorization: `Bearer ${webhookToken}` } : {})
+              ...(webhook.token ? { Authorization: `Bearer ${webhook.token}` } : {})
             },
             body: JSON.stringify(payload),
             signal: AbortSignal.timeout(10_000)
           });
         } catch {
-          sendJson(response, 502, { error: "Nao conseguimos iniciar o atendimento. Tente novamente." });
+          sendJson(response, 502, { error: "Não conseguimos iniciar o atendimento. Tente novamente." });
           return;
         }
 
         if (!webhookResponse.ok) {
-          sendJson(response, 502, { error: "Nao conseguimos iniciar o atendimento. Tente novamente." });
+          sendJson(response, 502, { error: "Não conseguimos iniciar o atendimento. Tente novamente." });
           return;
         }
         sendJson(response, 201, { ok: true });
@@ -210,7 +215,7 @@ export function createServer({
 
       if (request.method !== "GET" && request.method !== "HEAD") {
         response.setHeader("Allow", "GET, HEAD");
-        sendJson(response, 405, { error: "Metodo nao permitido." });
+        sendJson(response, 405, { error: "Método não permitido." });
         return;
       }
 
@@ -234,9 +239,9 @@ export function createServer({
       if (error.code === "ENOENT" || error.code === "EISDIR") {
         response.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" }).end("Not found");
       } else if (error instanceof RangeError || error instanceof SyntaxError) {
-        sendJson(response, 400, { error: "Solicitacao invalida." });
+        sendJson(response, 400, { error: "Solicitação inválida." });
       } else {
-        sendJson(response, 500, { error: "Nao foi possivel concluir a solicitacao. Tente novamente." });
+        sendJson(response, 500, { error: "Não foi possível concluir a solicitação. Tente novamente." });
       }
     }
   });

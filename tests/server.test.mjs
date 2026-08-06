@@ -17,6 +17,10 @@ const validInput = {
   result: "nest",
   utm: { source: "instagram", ignored: "drop" }
 };
+const validNestInput = {
+  ...validInput,
+  answers: ["nest", "nest", "nest", "owntime", "owntime"]
+};
 
 const publicConfig = {
   privacyPolicyUrl: "https://ownerinc.com.br/politica-de-privacidade/",
@@ -26,8 +30,10 @@ const publicConfig = {
 const publicOptions = {
   ...publicConfig,
   publicOrigin: null,
-  webhookUrl: null,
-  webhookToken: null,
+  nestWebhookUrl: null,
+  nestWebhookToken: null,
+  owntimeWebhookUrl: null,
+  owntimeWebhookToken: null,
   fetchImplementation: fetch
 };
 
@@ -91,16 +97,22 @@ test("keeps only recognized string UTM values", () => {
 test("rejects missing or invalid public configuration", () => {
   assert.throws(
     () => createServer({ ...publicOptions, privacyPolicyUrl: "" }),
-    new TypeError("Configuracao publica invalida.")
+    new TypeError("Configuração pública inválida.")
   );
   assert.throws(
     () => createServer({ ...publicOptions, nestUrl: "http://nestgramado.com.br/" }),
-    new TypeError("Configuracao publica invalida.")
+    new TypeError("Configuração pública inválida.")
   );
 });
 
 test("exposes only public configuration", async () => {
-  await withServer({ ...publicOptions, webhookUrl: "https://secret.example/", webhookToken: "secret" }, async (baseUrl) => {
+  await withServer({
+    ...publicOptions,
+    nestWebhookUrl: "https://nest-secret.example/",
+    nestWebhookToken: "nest-secret",
+    owntimeWebhookUrl: "https://owntime-secret.example/",
+    owntimeWebhookToken: "owntime-secret"
+  }, async (baseUrl) => {
     const response = await fetch(`${baseUrl}/api/config`);
     assert.equal(response.status, 200);
     assert.deepEqual(await response.json(), publicConfig);
@@ -111,7 +123,7 @@ test("uses configured HTTPS public origin behind TLS termination", async () => {
   await withServer({
     ...publicOptions,
     publicOrigin: "https://quiz.ownerinc.com.br",
-    webhookUrl: "https://example.com/lead",
+    owntimeWebhookUrl: "https://owntime.example/lead",
     fetchImplementation: async () => ({ ok: true })
   }, async (baseUrl) => {
     const response = await postLead(baseUrl, validInput, {
@@ -137,40 +149,53 @@ test("rejects public-origin mismatches and does not trust forwarded headers", as
 test("accepts only HTTPS public origins outside local development", () => {
   assert.throws(
     () => createServer({ ...publicOptions, publicOrigin: "http://quiz.ownerinc.com.br" }),
-    new TypeError("PUBLIC_ORIGIN invalida.")
+    new TypeError("PUBLIC_ORIGIN inválida.")
   );
   assert.doesNotThrow(() => createServer({ ...publicOptions, publicOrigin: "http://localhost:4182" }));
 });
 
-test("forwards the recalculated lead and optional bearer token", async () => {
-  let forwarded;
+test("routes each recalculated result to its own webhook and bearer token", async () => {
+  const forwarded = [];
   const fetchImplementation = async (url, options) => {
-    forwarded = { url, ...options, body: JSON.parse(options.body) };
+    forwarded.push({ url, ...options, body: JSON.parse(options.body) });
     return { ok: true };
   };
 
-  await withServer({ ...publicOptions, webhookUrl: "https://example.com/lead", webhookToken: "secret", fetchImplementation }, async (baseUrl) => {
-    const response = await postLead(baseUrl, validInput);
-    assert.equal(response.status, 201);
-    assert.deepEqual(await response.json(), { ok: true });
+  await withServer({
+    ...publicOptions,
+    nestWebhookUrl: "https://nest.example/lead",
+    nestWebhookToken: "nest-secret",
+    owntimeWebhookUrl: "https://owntime.example/lead",
+    owntimeWebhookToken: "owntime-secret",
+    fetchImplementation
+  }, async (baseUrl) => {
+    assert.equal((await postLead(baseUrl, validInput)).status, 201);
+    assert.equal((await postLead(baseUrl, validNestInput)).status, 201);
   });
 
-  assert.equal(forwarded.url, "https://example.com/lead");
-  assert.equal(forwarded.method, "POST");
-  assert.equal(forwarded.headers.Authorization, "Bearer secret");
-  assert.equal(forwarded.headers["Content-Type"], "application/json");
-  assert.equal(forwarded.headers["X-Idempotency-Key"], forwarded.body.submissionId);
-  assert.equal(forwarded.body.result, "owntime");
-  assert.equal(forwarded.body.source, "lp-tijolo");
-  assert.deepEqual(forwarded.body.consent, { contact: true, acceptedAt: forwarded.body.submittedAt });
-  assert.equal(forwarded.signal instanceof AbortSignal, true);
+  assert.deepEqual(forwarded.map(({ url, headers, body }) => ({
+    url,
+    authorization: headers.Authorization,
+    result: body.result
+  })), [
+    { url: "https://owntime.example/lead", authorization: "Bearer owntime-secret", result: "owntime" },
+    { url: "https://nest.example/lead", authorization: "Bearer nest-secret", result: "nest" }
+  ]);
+  for (const request of forwarded) {
+    assert.equal(request.method, "POST");
+    assert.equal(request.headers["Content-Type"], "application/json");
+    assert.equal(request.headers["X-Idempotency-Key"], request.body.submissionId);
+    assert.equal(request.body.source, "lp-tijolo");
+    assert.deepEqual(request.body.consent, { contact: true, acceptedAt: request.body.submittedAt });
+    assert.equal(request.signal instanceof AbortSignal, true);
+  }
 });
 
 test("omits authorization when the webhook token is absent", async () => {
   let headers;
   await withServer({
     ...publicOptions,
-    webhookUrl: "https://example.com/lead",
+    owntimeWebhookUrl: "https://owntime.example/lead",
     fetchImplementation: async (_url, options) => {
       headers = options.headers;
       return { ok: true };
@@ -182,13 +207,35 @@ test("omits authorization when the webhook token is absent", async () => {
 });
 
 test("does not confirm a lead without a successful webhook", async () => {
+  let wrongWebhookCalls = 0;
   await withServer(publicOptions, async (baseUrl) => {
     assert.equal((await postLead(baseUrl, validInput)).status, 503);
   });
-  await withServer({ ...publicOptions, webhookUrl: "https://example.com/lead", fetchImplementation: async () => ({ ok: false }) }, async (baseUrl) => {
+  await withServer({
+    ...publicOptions,
+    nestWebhookUrl: "https://nest.example/lead",
+    fetchImplementation: async () => {
+      wrongWebhookCalls += 1;
+      return { ok: true };
+    }
+  }, async (baseUrl) => {
+    assert.equal((await postLead(baseUrl, validInput)).status, 503);
+  });
+  await withServer({
+    ...publicOptions,
+    owntimeWebhookUrl: "https://owntime.example/lead",
+    fetchImplementation: async () => {
+      wrongWebhookCalls += 1;
+      return { ok: true };
+    }
+  }, async (baseUrl) => {
+    assert.equal((await postLead(baseUrl, validNestInput)).status, 503);
+  });
+  assert.equal(wrongWebhookCalls, 0);
+  await withServer({ ...publicOptions, owntimeWebhookUrl: "https://owntime.example/lead", fetchImplementation: async () => ({ ok: false }) }, async (baseUrl) => {
     assert.equal((await postLead(baseUrl, validInput)).status, 502);
   });
-  await withServer({ ...publicOptions, webhookUrl: "https://example.com/lead", fetchImplementation: async () => { throw new DOMException("Timeout", "TimeoutError"); } }, async (baseUrl) => {
+  await withServer({ ...publicOptions, owntimeWebhookUrl: "https://owntime.example/lead", fetchImplementation: async () => { throw new DOMException("Timeout", "TimeoutError"); } }, async (baseUrl) => {
     assert.equal((await postLead(baseUrl, validInput)).status, 502);
   });
 });

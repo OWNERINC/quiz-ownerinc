@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/*.mjs", "use": "@vercel/node" },
+    { "src": "public/**", "use": "@vercel/static" }
+  ],
+  "rewrites": [
+    { "source": "/api/config", "destination": "/api/config.mjs" },
+    { "source": "/api/leads", "destination": "/api/leads.mjs" },
+    { "source": "/", "destination": "/public/index.html" },
+    { "source": "/styles.css", "destination": "/public/styles.css" },
+    { "source": "/app.js", "destination": "/public/app.js" },
+    { "source": "/quiz.js", "destination": "/public/quiz.js" },
+    { "source": "/assets/:path*", "destination": "/public/assets/:path*" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; base-uri 'none'; connect-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data:; script-src 'self'; style-src 'self'" },
+        { "key": "Permissions-Policy", "value": "camera=(), geolocation=(), microphone=()" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" }
+      ]
+    }
+  ]
+}
