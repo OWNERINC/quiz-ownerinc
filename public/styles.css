@@ -387,12 +387,12 @@ h1 em {
 }
 
 .result[data-result="owntime"] {
-  --result-hero: url("/assets/results/owntime-hero-placeholder.svg");
+  --result-hero: url("/assets/results/owntime-hero-official.jpg");
   --result-accent: var(--bronze);
 }
 
 .result[data-result="nest"] {
-  --result-hero: url("/assets/results/nest-hero-placeholder.svg");
+  --result-hero: url("/assets/results/nest-hero-official.jpg");
   --result-accent: var(--bronze);
 }
 

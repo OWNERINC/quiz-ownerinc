@@ -7,6 +7,8 @@ const appUrl = new URL("../public/app.js", import.meta.url);
 const stylesUrl = new URL("../public/styles.css", import.meta.url);
 const owntimeLogoUrl = new URL("../public/assets/results/owntime-logo-white.png", import.meta.url);
 const nestLogoUrl = new URL("../public/assets/results/nest-logo-white.png", import.meta.url);
+const owntimeHeroUrl = new URL("../public/assets/results/owntime-hero-official.jpg", import.meta.url);
+const nestHeroUrl = new URL("../public/assets/results/nest-hero-official.jpg", import.meta.url);
 
 test("ships one semantic quiz form and one lead form", async () => {
   const html = await readFile(htmlUrl, "utf8");
@@ -80,13 +82,15 @@ test("frames the result as an editorial preference and improves form recovery", 
   assert.doesNotMatch(styles, /min-width:\s*320px/);
 });
 
-test("ships stationary result copy and drop-in official logo fallbacks", async () => {
-  const [html, app, styles, owntimeLogo, nestLogo] = await Promise.all([
+test("ships stationary result copy and official result assets", async () => {
+  const [html, app, styles, owntimeLogo, nestLogo, owntimeHero, nestHero] = await Promise.all([
     readFile(htmlUrl, "utf8"),
     readFile(appUrl, "utf8"),
     readFile(stylesUrl, "utf8"),
     readFile(owntimeLogoUrl),
-    readFile(nestLogoUrl)
+    readFile(nestLogoUrl),
+    readFile(owntimeHeroUrl),
+    readFile(nestHeroUrl)
   ]);
   assert.match(html, /<img id="result-logo"[^>]+hidden>/);
   assert.match(html, /<span id="result-wordmark"/);
@@ -95,6 +99,11 @@ test("ships stationary result copy and drop-in official logo fallbacks", async (
   assert.match(app, /resultLogo\.addEventListener\("error"/);
   assert.ok(owntimeLogo.length > 1_000);
   assert.ok(nestLogo.length > 1_000);
+  assert.ok(owntimeHero.length > 50_000);
+  assert.ok(nestHero.length > 50_000);
+  assert.match(styles, /--result-hero:\s*url\("\/assets\/results\/owntime-hero-official\.jpg"\)/);
+  assert.match(styles, /--result-hero:\s*url\("\/assets\/results\/nest-hero-official\.jpg"\)/);
+  assert.doesNotMatch(styles, /hero-placeholder\.svg/);
   assert.doesNotMatch(styles, /\.result\.is-revealed \.result__content/);
   assert.match(styles, /\.text-link\s*\{[\s\S]*?display: inline-flex;[\s\S]*?min-height: 48px;/);
   assert.match(styles, /\.consent label\s*\{[\s\S]*?min-height: 48px;/);
