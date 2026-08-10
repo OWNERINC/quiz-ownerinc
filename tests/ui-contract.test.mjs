@@ -11,6 +11,7 @@ const nestLogoUrl = new URL("../public/assets/results/nest-logo-white.png", impo
 test("ships one semantic quiz form and one lead form", async () => {
   const html = await readFile(htmlUrl, "utf8");
   assert.match(html, /<main/);
+  assert.match(html, /<link rel="icon" href="\/assets\/brand\/ownerinc-icon-white\.png" type="image\/png">/);
   assert.match(html, /<h1/);
   assert.match(html, /<form[^>]+id="quiz-form"/);
   assert.match(html, /<fieldset/);
