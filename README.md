@@ -40,9 +40,9 @@ pelo verificador agregado do workspace.
 | `PRIVACY_POLICY_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
 | `OWNTIME_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
 | `NEST_URL` | Sim | Configuracao publica HTTPS, entregue ao navegador por `/api/config`. |
-| `NEST_WEBHOOK_URL` | Sim para receber leads Nest | Destino server-side dos leads classificados como Nest; nunca e exposto ao navegador. |
+| `NEST_WEBHOOK_URL` | Sim para receber leads Nest | Destino server-side dos leads classificados como Nest; pode ser o mesmo endpoint n8n usado por Owntime; nunca e exposto ao navegador. |
 | `NEST_WEBHOOK_TOKEN` | Nao | Token Bearer exclusivo do webhook Nest. |
-| `OWNTIME_WEBHOOK_URL` | Sim para receber leads Owntime | Destino server-side dos leads classificados como Owntime; nunca e exposto ao navegador. |
+| `OWNTIME_WEBHOOK_URL` | Sim para receber leads Owntime | Destino server-side dos leads classificados como Owntime; pode ser o mesmo endpoint n8n usado por Nest; nunca e exposto ao navegador. |
 | `OWNTIME_WEBHOOK_TOKEN` | Nao | Token Bearer exclusivo do webhook Owntime. |
 
 Nao versione `.env` nem valores reais de webhook. As tres URLs publicas precisam
@@ -57,7 +57,9 @@ servidor nao confia em `Forwarded`, `X-Forwarded-Host` ou `X-Forwarded-Proto`.
 
 `POST /api/leads` valida e normaliza a entrada, recalcula o resultado a partir
 das cinco respostas e envia `POST` para `NEST_WEBHOOK_URL` ou
-`OWNTIME_WEBHOOK_URL`. O token correspondente segue no header `Authorization`.
+`OWNTIME_WEBHOOK_URL`. Para um webhook n8n único, configure as duas variáveis
+com a mesma URL. O token correspondente, quando configurado, segue no header
+`Authorization`.
 `X-Idempotency-Key` recebe o mesmo UUID de `submissionId`.
 
 Payload normalizado:
@@ -103,6 +105,12 @@ resultado correspondente responde com sucesso. Sem a URL correspondente, a API
 responde `503`. Timeout de 10 segundos, erro de rede ou resposta nao bem-sucedida
 do webhook retornam `502`; nao ha fila, persistencia local nem confirmacao falsa,
 e o usuario recebe orientacao para tentar novamente.
+
+No n8n, o corpo chega como JSON no nivel raiz, sem um wrapper `data`. Os campos
+principais para o fluxo sao `submissionId`, `source`, `submittedAt`, `name`,
+`whatsapp`, `email`, `answers`, `profile`, `result`, `scores`, `utm` e
+`consent`. Use `result` para separar Owntime e Nest e `submissionId` como chave
+de idempotencia; o header `X-Idempotency-Key` repete esse mesmo valor.
 
 ## Gate de publicacao
 
