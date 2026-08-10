@@ -1,19 +1,19 @@
-import { QUESTIONS, classifyAnswers } from "./quiz.js";
+import { AFFINITY_QUESTIONS, PROFILE_QUESTIONS, QUESTIONS, classifyAnswers, shuffleQuestions } from "./quiz.js";
 
 const RESULTS = {
   owntime: {
     title: "Owntime",
     logo: "/assets/results/owntime-logo-white.png",
-    copy: "Suas respostas indicam maior afinidade editorial com o Owntime, um caminho para conhecer uma proposta ligada a espaço, natureza e convivência."
+    copy: "Suas respostas se aproximam editorialmente do Owntime. Um ponto de partida para conhecer uma proposta de espaço, natureza e convivência."
   },
   nest: {
     title: "Nest Mountain Lodge",
     logo: "/assets/results/nest-logo-white.png",
-    copy: "Suas respostas indicam maior afinidade editorial com o Nest Mountain Lodge, um caminho para conhecer uma proposta ligada a arquitetura, bem-estar e contemplação."
+    copy: "Suas respostas se aproximam editorialmente do Nest Mountain Lodge. Um ponto de partida para conhecer uma proposta de arquitetura, bem-estar e contemplação."
   }
 };
 
-const state = { questionIndex: 0, answers: Array(QUESTIONS.length).fill(null), result: null };
+const state = { questionIndex: 0, questions: shuffleQuestions(QUESTIONS), responses: {}, result: null };
 const utmMap = {
   utm_source: "source",
   utm_medium: "medium",
@@ -33,8 +33,8 @@ const intro = document.querySelector("#intro");
 const quiz = document.querySelector("#quiz");
 const quizForm = document.querySelector("#quiz-form");
 const progress = document.querySelector("#quiz-progress");
-const progressSegments = [...document.querySelectorAll(".progress-track span")];
 const prompt = document.querySelector("#question-prompt");
+const choices = [...document.querySelectorAll(".answer-choice")];
 const radios = [...document.querySelectorAll('input[name="answer"]')];
 const labels = radios.map((radio) => document.querySelector(`label[for="${radio.id}"]`));
 const back = document.querySelector("#back");
@@ -53,25 +53,28 @@ const submitLead = document.querySelector("#submit-lead");
 const success = document.querySelector("#success");
 
 function renderQuestion({ focus = false } = {}) {
-  const question = QUESTIONS[state.questionIndex];
-  progress.textContent = `Pergunta ${state.questionIndex + 1} de ${QUESTIONS.length}`;
-  progressSegments.forEach((segment, index) => segment.classList.toggle("is-active", index <= state.questionIndex));
+  const question = state.questions[state.questionIndex];
+  progress.textContent = `Pergunta ${state.questionIndex + 1} de ${state.questions.length}`;
   prompt.textContent = question.prompt;
-  question.options.forEach((option, index) => {
+  choices.forEach((choice, index) => {
+    const option = question.options[index];
+    choice.hidden = !option;
+    if (!option) return;
     radios[index].value = option.value;
-    radios[index].checked = state.answers[state.questionIndex] === option.value;
+    radios[index].checked = state.responses[question.id] === option.value;
     labels[index].textContent = option.label;
   });
   back.disabled = false;
   back.textContent = state.questionIndex === 0 ? "Início" : "Voltar";
-  continueButton.disabled = state.answers[state.questionIndex] === null;
-  continueButton.textContent = state.questionIndex === QUESTIONS.length - 1 ? "Ver meu resultado" : "Continuar";
+  continueButton.disabled = !state.responses[question.id];
+  continueButton.textContent = state.questionIndex === state.questions.length - 1 ? "Ver meu resultado" : "Continuar";
   if (focus) prompt.focus();
 }
 
 function showResult() {
   quiz.hidden = true;
-  const classification = classifyAnswers(state.answers);
+  const affinityAnswers = AFFINITY_QUESTIONS.map(({ id }) => state.responses[id]);
+  const classification = classifyAnswers(affinityAnswers);
   state.result = classification.result;
   const content = RESULTS[state.result];
   result.dataset.result = state.result;
@@ -88,7 +91,6 @@ function showResult() {
   }
   result.hidden = false;
   result.scrollIntoView({ block: "start", behavior: "instant" });
-  requestAnimationFrame(() => result.classList.add("is-revealed"));
   resultTitle.focus({ preventScroll: true });
 }
 
@@ -102,21 +104,6 @@ resultLogo.addEventListener("error", () => {
   resultTitle.classList.remove("has-official-logo");
 });
 
-if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
-  let parallaxFrame;
-  const updateParallax = () => {
-    parallaxFrame = null;
-    if (result.hidden) return;
-    const value = Math.min(1, Math.max(0, -result.getBoundingClientRect().top / innerHeight));
-    result.style.setProperty("--parallax", value.toFixed(3));
-  };
-  const queueParallax = () => {
-    if (!parallaxFrame) parallaxFrame = requestAnimationFrame(updateParallax);
-  };
-  addEventListener("scroll", queueParallax, { passive: true });
-  addEventListener("resize", queueParallax);
-}
-
 document.querySelector("#start").addEventListener("click", () => {
   intro.hidden = true;
   quiz.hidden = false;
@@ -125,14 +112,14 @@ document.querySelector("#start").addEventListener("click", () => {
 
 quizForm.addEventListener("change", (event) => {
   if (event.target.name !== "answer") return;
-  state.answers[state.questionIndex] = event.target.value;
+  state.responses[state.questions[state.questionIndex].id] = event.target.value;
   continueButton.disabled = false;
 });
 
 quizForm.addEventListener("submit", (event) => {
   event.preventDefault();
-  if (state.answers[state.questionIndex] === null) return;
-  if (state.questionIndex === QUESTIONS.length - 1) {
+  if (!state.responses[state.questions[state.questionIndex].id]) return;
+  if (state.questionIndex === state.questions.length - 1) {
     showResult();
     return;
   }
@@ -153,7 +140,8 @@ back.addEventListener("click", () => {
 
 function restartQuiz() {
   state.questionIndex = 0;
-  state.answers.fill(null);
+  state.questions = shuffleQuestions(QUESTIONS);
+  state.responses = {};
   state.result = null;
   quiz.hidden = true;
   result.hidden = true;
@@ -194,12 +182,14 @@ leadForm.addEventListener("submit", async (event) => {
   leadForm.setAttribute("aria-busy", "true");
 
   const fields = new FormData(leadForm);
+  const profile = Object.fromEntries(PROFILE_QUESTIONS.map(({ id }) => [id, state.responses[id]]));
   const payload = {
     name: fields.get("name"),
     whatsapp: fields.get("whatsapp"),
     email: fields.get("email"),
     consent: fields.get("consent") === "on",
-    answers: state.answers,
+    answers: AFFINITY_QUESTIONS.map(({ id }) => state.responses[id]),
+    profile,
     result: state.result,
     utm
   };

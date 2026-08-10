@@ -2,17 +2,21 @@
 
 ## Objetivo
 
-Entregar um quiz mobile-first que, apos cinco perguntas de preferencia, apresente
-Owntime ou Nest Mountain Lodge como afinidade editorial indicativa em Gramado.
+Entregar um quiz mobile-first que, apos cinco perguntas de afinidade e tres
+perguntas de perfil, apresente Owntime ou Nest Mountain Lodge como afinidade
+editorial indicativa em Gramado.
 
 ## Escopo
 
 - Abertura editorial com identidade neutra da Ownerinc.
-- Cinco perguntas binárias apresentadas uma por tela.
+- Oito perguntas binárias apresentadas uma por tela, com ordem embaralhada a cada
+  tentativa.
+- Tres perguntas adicionais identificam companhia, momento e forma de viajar,
+  sem alterar a afinidade calculada.
 - Resultado direto por afinidade editorial, sem alegacao financeira, garantia de
   adequacao ou superioridade.
 - Explicacao neutra de que ambos sao empreendimentos de propriedade compartilhada.
-- Revelacao cinematografica do resultado com parallax controlado.
+- Revelacao editorial do resultado sem parallax.
 - Formulario opcional apos o resultado com nome, WhatsApp, e-mail e consentimento.
 - Encaminhamento server-side do lead para webhook configuravel.
 
@@ -23,7 +27,7 @@ Owntime ou Nest Mountain Lodge como afinidade editorial indicativa em Gramado.
 
 ## Integracoes
 
-- Webhook server-side para CRM ou automacao comercial.
+- Webhooks server-side separados por resultado para CRM ou automacao comercial.
 - Politica de privacidade oficial vinculada ao consentimento.
 
 ## Limites

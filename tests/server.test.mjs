@@ -14,6 +14,11 @@ const validInput = {
   email: "MARIA@example.com",
   consent: true,
   answers: ["owntime", "owntime", "owntime", "nest", "nest"],
+  profile: {
+    companhia: "familia",
+    momento: "memorias-em-familia",
+    viagem: "conforto-familiar"
+  },
   result: "nest",
   utm: { source: "instagram", ignored: "drop" }
 };
@@ -63,6 +68,7 @@ test("normalizes a valid lead and recalculates its result", () => {
       whatsapp: "+5551999999999",
       email: "maria@example.com",
       answers: validInput.answers,
+      profile: validInput.profile,
       result: "owntime",
       scores: { owntime: 3, nest: 2 },
       utm: { source: "instagram" }
@@ -79,6 +85,12 @@ test("rejects invalid identity, consent and answers", () => {
   assert.match(validateLead({ ...validInput, consent: false }).error, /contato/i);
   assert.match(validateLead({ ...validInput, answers: ["owntime"] }).error, /respostas/i);
   assert.match(validateLead(null).error, /nome/i);
+});
+
+test("validates the separate profile answers", () => {
+  assert.equal(validateLead({ ...validInput, profile: undefined }).error, "Perfil inválido.");
+  assert.equal(validateLead({ ...validInput, profile: { ...validInput.profile, momento: "unknown" } }).error, "Perfil inválido.");
+  assert.equal(validateLead({ ...validInput, profile: { ...validInput.profile, extra: "drop" } }).error, "Perfil inválido.");
 });
 
 test("rejects country-prefixed phone input outside the local-phone boundary", () => {
@@ -186,6 +198,7 @@ test("routes each recalculated result to its own webhook and bearer token", asyn
     assert.equal(request.headers["Content-Type"], "application/json");
     assert.equal(request.headers["X-Idempotency-Key"], request.body.submissionId);
     assert.equal(request.body.source, "lp-tijolo");
+    assert.deepEqual(request.body.profile, validInput.profile);
     assert.deepEqual(request.body.consent, { contact: true, acceptedAt: request.body.submittedAt });
     assert.equal(request.signal instanceof AbortSignal, true);
   }
@@ -283,11 +296,11 @@ test("serves public files with restrictive security headers", async () => {
   });
 });
 
-test("serves licensed font formats with their MIME types", async () => {
+test("serves the active font formats with their MIME types", async () => {
   await withServer(publicOptions, async (baseUrl) => {
     const otf = await fetch(`${baseUrl}/assets/fonts/novelin-regular.otf`);
-    const ttf = await fetch(`${baseUrl}/assets/fonts/signaturia-regular.ttf`);
+    const bold = await fetch(`${baseUrl}/assets/fonts/novelin-bold.otf`);
     assert.equal(otf.headers.get("content-type"), "font/otf");
-    assert.equal(ttf.headers.get("content-type"), "font/ttf");
+    assert.equal(bold.headers.get("content-type"), "font/otf");
   });
 });

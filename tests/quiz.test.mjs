@@ -1,9 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { QUESTIONS, classifyAnswers } from "../public/quiz.js";
+import { AFFINITY_QUESTIONS, PROFILE_QUESTIONS, QUESTIONS, classifyAnswers, shuffleQuestions } from "../public/quiz.js";
 
 test("publishes the five approved binary questions exactly", () => {
-  assert.deepEqual(QUESTIONS, [
+  assert.deepEqual(AFFINITY_QUESTIONS, [
     {
       id: "acomodacao",
       prompt: "Quando imagina sua estadia em Gramado, qual configuração mais combina com você?",
@@ -45,6 +45,24 @@ test("publishes the five approved binary questions exactly", () => {
       ]
     }
   ]);
+});
+
+test("publishes three profile questions with stable ids and four options", () => {
+  assert.deepEqual(PROFILE_QUESTIONS.map(({ id, options }) => ({
+    id,
+    options: options.map(({ value }) => value)
+  })), [
+    { id: "companhia", options: ["proprio-ritmo", "casal", "familia", "geracoes"] },
+    { id: "momento", options: ["desacelerar", "descobertas-a-dois", "memorias-em-familia", "pessoas-queridas"] },
+    { id: "viagem", options: ["liberdade", "planejamento-a-dois", "conforto-familiar", "reunir-pessoas"] }
+  ]);
+});
+
+test("shuffles all eight questions without changing the catalog", () => {
+  const shuffled = shuffleQuestions(QUESTIONS, () => 0);
+  assert.equal(shuffled.length, QUESTIONS.length);
+  assert.deepEqual(new Set(shuffled.map(({ id }) => id)), new Set(QUESTIONS.map(({ id }) => id)));
+  assert.notDeepEqual(shuffled.map(({ id }) => id), QUESTIONS.map(({ id }) => id));
 });
 
 test("returns the simple majority for every possible score", () => {

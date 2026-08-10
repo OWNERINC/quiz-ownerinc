@@ -1,4 +1,4 @@
-export const QUESTIONS = [
+export const AFFINITY_QUESTIONS = [
   {
     id: "acomodacao",
     prompt: "Quando imagina sua estadia em Gramado, qual configuração mais combina com você?",
@@ -41,8 +41,52 @@ export const QUESTIONS = [
   }
 ];
 
+export const PROFILE_QUESTIONS = [
+  {
+    id: "companhia",
+    prompt: "Quando imagina uma pausa em Gramado, quem costuma estar com você?",
+    options: [
+      { value: "proprio-ritmo", label: "Comigo mesmo, no meu próprio ritmo." },
+      { value: "casal", label: "Em casal, com tempo para nós dois." },
+      { value: "familia", label: "Com filhos e família próxima." },
+      { value: "geracoes", label: "Com diferentes gerações da família." }
+    ]
+  },
+  {
+    id: "momento",
+    prompt: "O que você gostaria de cultivar nessa experiência?",
+    options: [
+      { value: "desacelerar", label: "Tempo para desacelerar e me cuidar." },
+      { value: "descobertas-a-dois", label: "Conversas e descobertas a dois." },
+      { value: "memorias-em-familia", label: "Memórias para construir em família." },
+      { value: "pessoas-queridas", label: "Encontros para compartilhar com pessoas queridas." }
+    ]
+  },
+  {
+    id: "viagem",
+    prompt: "Como você costuma viver uma viagem?",
+    options: [
+      { value: "liberdade", label: "Prefiro liberdade para decidir cada dia." },
+      { value: "planejamento-a-dois", label: "Gosto de planejar momentos especiais a dois." },
+      { value: "conforto-familiar", label: "Organizo tudo pensando no conforto da família." },
+      { value: "reunir-pessoas", label: "Valorizo um lugar que possa reunir pessoas importantes." }
+    ]
+  }
+];
+
+export const QUESTIONS = [...AFFINITY_QUESTIONS, ...PROFILE_QUESTIONS];
+
+export function shuffleQuestions(questions, random = Math.random) {
+  const shuffled = [...questions];
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const target = Math.floor(random() * (index + 1));
+    [shuffled[index], shuffled[target]] = [shuffled[target], shuffled[index]];
+  }
+  return shuffled;
+}
+
 export function classifyAnswers(answers) {
-  if (!Array.isArray(answers) || answers.length !== QUESTIONS.length ||
+  if (!Array.isArray(answers) || answers.length !== AFFINITY_QUESTIONS.length ||
       answers.some((answer) => answer !== "owntime" && answer !== "nest")) {
     throw new TypeError("Respostas inválidas.");
   }

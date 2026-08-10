@@ -23,6 +23,9 @@ test("ships one semantic quiz form and one lead form", async () => {
   assert.match(html, /role="alert"/);
   assert.equal((html.match(/<form[^>]+id="quiz-form"/g) || []).length, 1);
   assert.equal((html.match(/<form[^>]+id="lead-form"/g) || []).length, 1);
+  assert.equal((html.match(/class="answer-choice"/g) || []).length, 4);
+  assert.match(html, /id="quiz-progress"[^>]+aria-live="polite"/);
+  assert.doesNotMatch(html, /progress-track/);
 });
 
 test("keeps result, lead form and success as distinct journey stages", async () => {
@@ -39,7 +42,7 @@ test("keeps result, lead form and success as distinct journey stages", async () 
 
 test("client consumes the established domain and API interfaces", async () => {
   const [html, app] = await Promise.all([readFile(htmlUrl, "utf8"), readFile(appUrl, "utf8")]);
-  assert.match(app, /import \{ QUESTIONS, classifyAnswers \} from "\.\/quiz\.js"/);
+  assert.match(app, /import \{ AFFINITY_QUESTIONS, PROFILE_QUESTIONS, QUESTIONS, classifyAnswers, shuffleQuestions \} from "\.\/quiz\.js"/);
   assert.match(app, /fetch\("\/api\/config"/);
   assert.match(app, /fetch\("\/api\/leads"/);
   assert.match(app, /utm_source:\s*"source"/);
@@ -90,12 +93,20 @@ test("ships stationary result copy and drop-in official logo fallbacks", async (
   assert.match(styles, /\.consent a\s*\{[\s\S]*?min-height: 48px;/);
 });
 
-test("keeps mobile parallax below the desktop amplitude and layer count", async () => {
-  const styles = await readFile(stylesUrl, "utf8");
-  assert.match(styles, /\.result__media\s*\{[\s\S]*?calc\(var\(--parallax\) \* 12px\)/);
-  assert.match(styles, /\.result__veil\s*\{[\s\S]*?transform: none;/);
-  assert.match(styles, /@media \(min-width: 48rem\)[\s\S]*?\.result__media\s*\{[\s\S]*?calc\(var\(--parallax\) \* 24px\)/);
-  assert.match(styles, /@media \(min-width: 48rem\)[\s\S]*?\.result__veil\s*\{[\s\S]*?calc\(var\(--parallax\) \* 12px\)/);
+test("keeps the visual system restrained and editorial", async () => {
+  const [app, html, styles] = await Promise.all([
+    readFile(appUrl, "utf8"),
+    readFile(htmlUrl, "utf8"),
+    readFile(stylesUrl, "utf8")
+  ]);
+  assert.equal((styles.match(/@font-face\s*\{/g) || []).length, 2);
+  assert.match(styles, /font-family: Novelin;[\s\S]*?font-weight: 400;/);
+  assert.match(styles, /font-family: Novelin;[\s\S]*?font-weight: 700;/);
+  assert.doesNotMatch(`${app}\n${styles}`, /Signaturia|parallax/);
+  assert.doesNotMatch(`${html}\n${styles}`, /button__mark|intro::after/);
+  assert.doesNotMatch(styles, /inset\s+(?:58vw|0\s+-14rem)/);
+  assert.doesNotMatch(styles, /font-size:\s*clamp\(6rem,\s*11vw,\s*10rem\)/);
+  assert.match(styles, /\.result__media\s*\{[\s\S]*?background-size:\s*cover;/);
 });
 
 test("keeps normal journey stages fixed and restores short-height scrolling", async () => {

@@ -71,6 +71,11 @@ Payload normalizado:
   "whatsapp": "+5551999999999",
   "email": "email@example.com",
   "answers": ["owntime", "nest", "owntime", "nest", "owntime"],
+  "profile": {
+    "companhia": "familia",
+    "momento": "memorias-em-familia",
+    "viagem": "conforto-familiar"
+  },
   "result": "owntime",
   "scores": { "owntime": 3, "nest": 2 },
   "utm": {
@@ -89,8 +94,9 @@ Payload normalizado:
 
 `utm` contem somente valores string presentes entre `source`, `medium`,
 `campaign`, `content` e `term`; chaves ausentes sao omitidas. O servidor aceita
-apenas cinco respostas `owntime` ou `nest`, normaliza o telefone brasileiro para
-`+55` e nao confia em `result` enviado pelo navegador.
+cinco respostas `owntime` ou `nest` para a afinidade e valida separadamente as
+tres respostas de perfil. O telefone brasileiro e normalizado para `+55`, e o
+servidor nao confia em `result` enviado pelo navegador.
 
 O lead so e confirmado ao navegador com HTTP `201` depois que o webhook do
 resultado correspondente responde com sucesso. Sem a URL correspondente, a API

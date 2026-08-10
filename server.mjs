@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { classifyAnswers } from "./public/quiz.js";
+import { PROFILE_QUESTIONS, classifyAnswers } from "./public/quiz.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const publicRoot = path.join(directory, "public");
@@ -85,6 +85,19 @@ function cleanUtm(value) {
     .map(([key, item]) => [key, item.trim().slice(0, 100)]));
 }
 
+function validateProfile(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value) || Object.keys(value).length !== PROFILE_QUESTIONS.length) {
+    return null;
+  }
+  const profile = {};
+  for (const question of PROFILE_QUESTIONS) {
+    const answer = value[question.id];
+    if (!question.options.some((option) => option.value === answer)) return null;
+    profile[question.id] = answer;
+  }
+  return profile;
+}
+
 export function validateLead(input) {
   const name = typeof input?.name === "string" ? input.name.trim().replace(/\s+/g, " ") : "";
   const email = typeof input?.email === "string" ? input.email.trim().toLowerCase() : "";
@@ -101,6 +114,8 @@ export function validateLead(input) {
   } catch {
     return { error: "Respostas inválidas." };
   }
+  const profile = validateProfile(input?.profile);
+  if (!profile) return { error: "Perfil inválido." };
 
   return {
     value: {
@@ -108,6 +123,7 @@ export function validateLead(input) {
       whatsapp: `+55${digits}`,
       email,
       answers: input.answers,
+      profile,
       ...classification,
       utm: cleanUtm(input.utm)
     }
