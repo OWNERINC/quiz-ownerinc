@@ -1,0 +1,141 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:ownerinc:quiz:submission:v1",
+  "title": "Ownerinc Quiz Submission v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "quiz_version", "flow_id", "form_id", "submission_id", "occurred_at",
+    "property_code", "empreendimento", "source", "contact", "answers", "result", "consent",
+    "idempotency", "metadata"
+  ],
+  "properties": {
+    "schema_version": { "const": "ownerinc.quiz.submission.v1" },
+    "quiz_version": { "const": "ownerinc.quiz.affinity.v1" },
+    "flow_id": { "const": "ownerinc.quiz.lead_capture.v1" },
+    "form_id": { "const": "ownerinc.quiz.contact_form.v1" },
+    "submission_id": { "type": "string", "format": "uuid" },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "property_code": { "enum": ["OWN_TIME_HOME_CLUB_GRAMADO", "NEST_MOUNTAIN_LODGE"] },
+    "empreendimento": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "key"],
+      "properties": {
+        "code": { "enum": ["OWN_TIME_HOME_CLUB_GRAMADO", "NEST_MOUNTAIN_LODGE"] },
+        "key": { "enum": ["owntime", "nest"] }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["system", "channel", "origin", "campaign"],
+      "properties": {
+        "system": { "const": "ownerinc_quiz" },
+        "channel": { "const": "web" },
+        "origin": { "const": "landing_page" },
+        "campaign": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source", "medium", "campaign", "content", "term"],
+          "properties": {
+            "source": { "type": ["string", "null"] },
+            "medium": { "type": ["string", "null"] },
+            "campaign": { "type": ["string", "null"] },
+            "content": { "type": ["string", "null"] },
+            "term": { "type": ["string", "null"] }
+          }
+        }
+      }
+    },
+    "contact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "whatsapp", "email"],
+      "properties": {
+        "name": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "whatsapp": { "type": "string", "pattern": "^\\+[1-9][0-9]{9,14}$" },
+        "email": { "type": "string", "format": "email", "maxLength": 254 }
+      }
+    },
+    "answers": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["affinity", "profile"],
+      "properties": {
+        "affinity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["acomodacao", "atmosfera", "convivencia", "localizacao", "experiencia"],
+          "properties": {
+            "acomodacao": { "enum": ["owntime", "nest"] },
+            "atmosfera": { "enum": ["owntime", "nest"] },
+            "convivencia": { "enum": ["owntime", "nest"] },
+            "localizacao": { "enum": ["owntime", "nest"] },
+            "experiencia": { "enum": ["owntime", "nest"] }
+          }
+        },
+        "profile": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["companhia", "momento", "viagem"],
+          "properties": {
+            "companhia": { "enum": ["proprio-ritmo", "casal", "familia", "geracoes"] },
+            "momento": { "enum": ["desacelerar", "descobertas-a-dois", "memorias-em-familia", "pessoas-queridas"] },
+            "viagem": { "enum": ["liberdade", "planejamento-a-dois", "conforto-familiar", "reunir-pessoas"] }
+          }
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result_key", "property_code", "scores"],
+      "properties": {
+        "result_key": { "enum": ["owntime", "nest"] },
+        "property_code": { "enum": ["OWN_TIME_HOME_CLUB_GRAMADO", "NEST_MOUNTAIN_LODGE"] },
+        "scores": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["owntime", "nest"],
+          "properties": {
+            "owntime": { "type": "integer", "minimum": 0, "maximum": 5 },
+            "nest": { "type": "integer", "minimum": 0, "maximum": 5 }
+          }
+        }
+      }
+    },
+    "consent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["granted", "captured_at", "capture_method", "text_version", "policy_reference"],
+      "properties": {
+        "granted": { "const": true },
+        "captured_at": { "type": "string", "format": "date-time" },
+        "capture_method": { "const": "explicit_checkbox" },
+        "text_version": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "policy_reference": { "type": "string", "minLength": 1, "maxLength": 160 }
+      }
+    },
+    "idempotency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["key", "scope"],
+      "properties": {
+        "key": { "type": "string", "format": "uuid" },
+        "scope": { "const": "ownerinc.quiz.lead_capture.v1" }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["request_id", "received_at", "environment", "transport"],
+      "properties": {
+        "request_id": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "received_at": { "type": "string", "format": "date-time" },
+        "environment": { "type": "string", "minLength": 1, "maxLength": 40 },
+        "transport": { "const": "server_side" }
+      }
+    }
+  }
+}

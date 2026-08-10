@@ -1,0 +1,11 @@
+[Unit]
+Description=Check Ownerinc Quiz pinned branch every minute
+
+[Timer]
+OnBootSec=1min
+OnUnitInactiveSec=1min
+Persistent=true
+Unit=ownerinc-quiz-app-deploy.service
+
+[Install]
+WantedBy=timers.target

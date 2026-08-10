@@ -1,0 +1,31 @@
+name: ownerinc-quiz-app
+
+services:
+  web:
+    image: ${QUIZ_IMAGE:?QUIZ_IMAGE_REQUIRED}
+    container_name: quiz-ownerinc-app-web
+    restart: unless-stopped
+    init: true
+    read_only: true
+    user: node
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    env_file:
+      - /opt/ownerinc/secrets/quiz-ownerinc-app.runtime.env
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    expose: ["3000"]
+    networks: [ownerinc_proxy]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 4
+      start_period: 10s
+    logging:
+      driver: local
+      options: {max-size: "10m", max-file: "3"}
+
+networks:
+  ownerinc_proxy:
+    external: true

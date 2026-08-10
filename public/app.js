@@ -1,4 +1,5 @@
-import { AFFINITY_QUESTIONS, PROFILE_QUESTIONS, QUESTIONS, classifyAnswers, shuffleQuestions } from "./quiz.js";
+import { AFFINITY_QUESTIONS, QUESTIONS, classifyAnswers, shuffleQuestions } from "./quiz.js";
+import { createSubmissionAttempt, toClientSubmission } from "./client-submission.js";
 
 const RESULTS = {
   owntime: {
@@ -13,7 +14,13 @@ const RESULTS = {
   }
 };
 
-const state = { questionIndex: 0, questions: shuffleQuestions(QUESTIONS), responses: {}, result: null };
+const state = {
+  questionIndex: 0,
+  questions: shuffleQuestions(QUESTIONS),
+  responses: {},
+  result: null,
+  submissionAttempt: createSubmissionAttempt()
+};
 const utmMap = {
   utm_source: "source",
   utm_medium: "medium",
@@ -143,6 +150,7 @@ function restartQuiz() {
   state.questions = shuffleQuestions(QUESTIONS);
   state.responses = {};
   state.result = null;
+  state.submissionAttempt = createSubmissionAttempt();
   quiz.hidden = true;
   result.hidden = true;
   result.classList.remove("is-revealed");
@@ -182,17 +190,18 @@ leadForm.addEventListener("submit", async (event) => {
   leadForm.setAttribute("aria-busy", "true");
 
   const fields = new FormData(leadForm);
-  const profile = Object.fromEntries(PROFILE_QUESTIONS.map(({ id }) => [id, state.responses[id]]));
-  const payload = {
-    name: fields.get("name"),
-    whatsapp: fields.get("whatsapp"),
-    email: fields.get("email"),
-    consent: fields.get("consent") === "on",
-    answers: AFFINITY_QUESTIONS.map(({ id }) => state.responses[id]),
-    profile,
-    result: state.result,
-    utm
-  };
+  const payload = toClientSubmission({
+    attempt: state.submissionAttempt,
+    contact: {
+      name: fields.get("name"),
+      whatsapp: fields.get("whatsapp"),
+      email: fields.get("email")
+    },
+    consentGranted: fields.get("consent") === "on",
+    responses: state.responses,
+    resultKey: state.result,
+    campaign: utm
+  });
 
   let responseError;
   try {
@@ -201,7 +210,7 @@ leadForm.addEventListener("submit", async (event) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
-    if (response.status !== 201) {
+    if (response.status !== 202) {
       const body = await response.json().catch(() => ({}));
       responseError = typeof body.error === "string" ? body.error : retryMessage;
       throw new Error();
