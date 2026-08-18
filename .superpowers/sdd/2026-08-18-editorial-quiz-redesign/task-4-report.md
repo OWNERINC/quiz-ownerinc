@@ -133,6 +133,11 @@ URLs:
 - Pushed commit: https://github.com/OWNERINC/quiz-ownerinc/commit/cec8b67a83743ea4d1779ddcf8bf70cdf582ebdb
 - Production URL: https://lptijolo.vercel.app
 
+The required verification report was then committed as
+`7e5b176` (`docs(quiz): record editorial journey verification`) and pushed to
+the same `main` branch. The final remote `main` therefore includes both the
+redesign code and this report.
+
 ## Vercel Deployment
 
 Deployment was not attempted. The worktree has neither `.vercel` nor
