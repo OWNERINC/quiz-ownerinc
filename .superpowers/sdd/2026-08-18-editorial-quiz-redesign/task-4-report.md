@@ -207,7 +207,7 @@ environment with the user-provided values:
 
 ```text
 OWNERINC_QUIZ_WEBHOOK_ENABLED=true
-OWNERINC_QUIZ_WEBHOOK_URL=https://n8n.ownerinc.com.br/webhook/ownerinc/quiz/tijolo/v1/intake
+OWNERINC_QUIZ_WEBHOOK_URL=<configured production webhook URL>
 OWNERINC_QUIZ_CONSENT_TEXT_VERSION=v1
 OWNERINC_QUIZ_POLICY_REFERENCE=https://ownerinc.com.br/politica-de-privacidade/
 OWNERINC_QUIZ_ENVIRONMENT=production
@@ -346,3 +346,21 @@ Post-fix direct test outputs were:
 server.test.mjs excluding the symlink case: 13 passed, 0 failed
 other project tests: 25 passed, 0 failed
 ```
+
+## Task 4 Resume: Public Report Redaction
+
+The real production webhook endpoint was removed from this tracked public
+report and replaced with the neutral placeholder
+`<configured production webhook URL>`. The functional Vercel environment
+variable was not removed, changed, or re-deployed, and no token was exposed.
+
+Redaction verification:
+
+```text
+tracked repository search for the real n8n endpoint: no matches
+git diff --check: passed
+```
+
+The only remaining exposure concern is historical: earlier public commits may
+still contain the endpoint in repository history. This fix intentionally does
+not rewrite or force-push history.
