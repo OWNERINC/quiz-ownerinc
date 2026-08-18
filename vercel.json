@@ -11,6 +11,7 @@
     { "source": "/styles.css", "destination": "/public/styles.css" },
     { "source": "/app.js", "destination": "/public/app.js" },
     { "source": "/quiz.js", "destination": "/public/quiz.js" },
+    { "source": "/client-submission.js", "destination": "/public/client-submission.js" },
     { "source": "/assets/:path*", "destination": "/public/assets/:path*" }
   ],
   "headers": [
