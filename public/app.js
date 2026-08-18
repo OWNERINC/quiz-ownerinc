@@ -1,4 +1,4 @@
-import { AFFINITY_QUESTIONS, PROFILE_QUESTIONS, QUESTIONS, classifyAnswers, shuffleQuestions } from "./quiz.js";
+import { AFFINITY_QUESTIONS, PROFILE_QUESTIONS, QUESTIONS, classifyAnswers } from "./quiz.js";
 
 const RESULTS = {
   owntime: {
@@ -13,7 +13,7 @@ const RESULTS = {
   }
 };
 
-const state = { questionIndex: 0, questions: shuffleQuestions(QUESTIONS), responses: {}, result: null };
+const state = { questionIndex: 0, questions: QUESTIONS, responses: {}, result: null };
 const utmMap = {
   utm_source: "source",
   utm_medium: "medium",
@@ -140,7 +140,7 @@ back.addEventListener("click", () => {
 
 function restartQuiz() {
   state.questionIndex = 0;
-  state.questions = shuffleQuestions(QUESTIONS);
+  state.questions = QUESTIONS;
   state.responses = {};
   state.result = null;
   quiz.hidden = true;

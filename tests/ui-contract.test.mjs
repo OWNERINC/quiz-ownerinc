@@ -42,7 +42,7 @@ test("keeps result, lead form and success as distinct journey stages", async () 
 
 test("client consumes the established domain and API interfaces", async () => {
   const [html, app] = await Promise.all([readFile(htmlUrl, "utf8"), readFile(appUrl, "utf8")]);
-  assert.match(app, /import \{ AFFINITY_QUESTIONS, PROFILE_QUESTIONS, QUESTIONS, classifyAnswers, shuffleQuestions \} from "\.\/quiz\.js"/);
+  assert.match(app, /import \{ AFFINITY_QUESTIONS, PROFILE_QUESTIONS, QUESTIONS, classifyAnswers \} from "\.\/quiz\.js"/);
   assert.match(app, /fetch\("\/api\/config"/);
   assert.match(app, /fetch\("\/api\/leads"/);
   assert.match(app, /utm_source:\s*"source"/);

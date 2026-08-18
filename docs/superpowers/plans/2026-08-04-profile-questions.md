@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add three shuffled profile questions to LP Tijolo while keeping the five affinity questions as the sole Owntime/Nest classifier.
+**Goal:** Add three profile questions to LP Tijolo while keeping the five affinity questions as the sole Owntime/Nest classifier.
 
-**Architecture:** Keep affinity and profile question catalogs separate. The client shuffles a combined set for presentation, stores responses by stable question id, sends affinity answers and a profile object separately, and the server validates both at the trust boundary.
+**Architecture:** Keep affinity and profile question catalogs separate. Present a fixed editorially shuffled combined set with fixed shuffled options, store responses by stable question id, send affinity answers and a profile object separately, and validate both at the trust boundary.
 
 **Tech Stack:** HTML, browser JavaScript, native Node test runner, Vercel serverless adapter.
 
@@ -26,12 +26,12 @@
 
 **Interfaces:**
 - Consumes: existing five affinity questions and `classifyAnswers`.
-- Produces: `AFFINITY_QUESTIONS`, `PROFILE_QUESTIONS`, combined `QUESTIONS`, and `shuffleQuestions(questions, random)`.
+- Produces: `AFFINITY_QUESTIONS`, `PROFILE_QUESTIONS`, and a fixed combined `QUESTIONS` order.
 
-- [ ] **Step 1: Add the three profile question fixtures and shuffle tests**
+- [ ] **Step 1: Add the three profile question fixtures and fixed-order tests**
 
 Test exact profile ids `companhia`, `momento`, `viagem`, each with four allowed
-options. Test that a deterministic shuffle preserves all eight ids exactly once.
+  options. Test that the fixed order preserves all eight ids exactly once.
 
 - [ ] **Step 2: Separate the existing affinity catalog**
 
@@ -43,7 +43,7 @@ its prompts, labels, values, or order.
 Export `PROFILE_QUESTIONS` with the approved copy and stable option values, then
 export `QUESTIONS = [...AFFINITY_QUESTIONS, ...PROFILE_QUESTIONS]`.
 
-- [ ] **Step 4: Implement Fisher-Yates shuffle**
+- [ ] **Step 4: Define the editorially shuffled catalog order**
 
 Return a new array and accept an optional random function defaulting to
 `Math.random`, so tests can supply a deterministic sequence.
@@ -57,7 +57,7 @@ of the eight-question presentation catalog.
 
 Run: `node --test tests/quiz.test.mjs`
 
-Expected: existing classification cases and new profile/shuffle cases pass.
+Expected: existing classification cases and new profile/order cases pass.
 
 ### Task 2: Present Eight Questions And Send Profile Data
 
@@ -67,7 +67,7 @@ Expected: existing classification cases and new profile/shuffle cases pass.
 - Modify: `tests/ui-contract.test.mjs`
 
 **Interfaces:**
-- Consumes: `QUESTIONS`, `AFFINITY_QUESTIONS`, `PROFILE_QUESTIONS`, `shuffleQuestions`, and stable question ids.
+- Consumes: `QUESTIONS`, `AFFINITY_QUESTIONS`, `PROFILE_QUESTIONS`, and stable question ids.
 - Produces: eight-question UI and lead payload `{ answers, profile, result }`.
 
 - [ ] **Step 1: Keep progress as text only**
@@ -77,14 +77,13 @@ track from the markup, client updates, and styles.
 
 - [ ] **Step 2: Store responses by question id**
 
-Initialize `state.questions = shuffleQuestions(QUESTIONS)` and
-`state.responses = {}`. Render and restore radio state from the current
-question's id, not its shuffled index.
+Initialize `state.questions = QUESTIONS` and `state.responses = {}`. Render and
+restore radio state from the current question's id, not its visual position.
 
 - [ ] **Step 3: Rebuild the shuffle on restart**
 
-Reset `state.questions` and `state.responses` in `restartQuiz`; do not let an
-old response remain attached to a new question order.
+Reset `state.responses` in `restartQuiz`; do not let an old response remain
+attached to a new attempt.
 
 - [ ] **Step 4: Classify only affinity responses**
 

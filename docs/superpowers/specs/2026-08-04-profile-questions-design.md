@@ -8,10 +8,10 @@ inputs that determine Owntime or Nest.
 
 ## Question Flow
 
-The quiz contains eight questions total. On every new quiz or restart, the
-five affinity questions and three profile questions are shuffled together once
-using a local Fisher-Yates shuffle. The order remains stable while the person
-answers and changes on the next attempt.
+The quiz contains eight questions total. The five affinity questions and three
+profile questions use a fixed editorially shuffled order. Each question's
+options also use a fixed shuffled order, so the top and bottom positions do not
+encode the enterprise.
 
 The three profile questions are:
 
@@ -33,7 +33,7 @@ The three profile questions are:
 
 ## Data Contract
 
-The client stores responses by question id, not by shuffled position. The lead
+The client stores responses by question id, not by visual position. The lead
 payload keeps the five affinity answers in `answers` and adds a whitelisted
 `profile` object with `companhia`, `momento`, and `viagem` keys. The server
 validates both collections, recalculates the affinity from `answers`, and never
@@ -53,9 +53,9 @@ unchanged.
 ## Verification
 
 - Unit tests cover the exact five-question affinity set, three profile sets, and
-  shuffle preservation.
+  fixed question and option order.
 - Server tests cover valid profile forwarding, missing profile values, unknown
   profile values, and result recalculation from affinity answers only.
 - UI tests cover the textual progress indicator and the unchanged semantic form.
-- Chromium checks all eight shuffled questions and the lead form at supported
+- Chromium checks all eight questions and the lead form at supported
   viewports.
