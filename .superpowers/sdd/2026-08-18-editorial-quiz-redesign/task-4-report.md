@@ -339,3 +339,10 @@ computed animation=none
 - The production deployment is now complete at the preserved public alias and the corrected production smoke suite passes.
 - `npm run verify` still reports the known Windows `EPERM` symlink limitation: 38 passed, 1 environment-blocked test. The remaining project tests pass directly.
 - `/api/health` is not mapped in `vercel.json` and returns `404`; this is informational because it is not part of the quiz client flow.
+
+Post-fix direct test outputs were:
+
+```text
+server.test.mjs excluding the symlink case: 13 passed, 0 failed
+other project tests: 25 passed, 0 failed
+```
