@@ -364,3 +364,34 @@ git diff --check: passed
 The only remaining exposure concern is historical: earlier public commits may
 still contain the endpoint in repository history. This fix intentionally does
 not rewrite or force-push history.
+
+## Final Review Fix Wave
+
+The user explicitly confirmed that the production webhook endpoint is
+intentional deployment configuration because the VPS watcher consumes the
+repository runtime configuration. It was restored only in
+`deploy/runtime.env.example`, together with the enabled capture flag, consent
+version, existing privacy reference, and existing rate-limit settings. The
+real endpoint was not restored to this verification report and no token was
+added.
+
+The Vercel `/api/leads` adapter now reuses the Node server's rate-limit
+normalization and limiter before calling `handleLeadRequest`. It honors
+`OWNERINC_QUIZ_RATE_LIMIT_MAX`, `OWNERINC_QUIZ_RATE_LIMIT_WINDOW_MS`, and
+`OWNERINC_QUIZ_TRUST_PROXY_HOPS`, preserves the existing JSON `429` shape, and
+sets `Retry-After`. Direct adapter coverage verifies allowed forwarding,
+throttling, retry timing, and the unchanged synthetic `202` path; no real lead
+was sent.
+
+Checks:
+
+```text
+npm run verify: 40 passed, 1 Windows symlink EPERM limitation
+direct remaining tests: 13 server tests + 27 other tests passed
+git diff --check: passed
+tracked report search for the real endpoint: no matches
+```
+
+The Vercel limiter is process-local, matching the existing VPS in-memory
+limiter. A shared durable counter would still be required if production
+traffic scales across multiple concurrent serverless instances.

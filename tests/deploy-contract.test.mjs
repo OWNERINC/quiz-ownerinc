@@ -25,3 +25,8 @@ test("keeps the app private behind ownerinc_proxy", async () => {
   assert.match(compose, /read_only: true/);
   assert.match(compose, /no-new-privileges:true/);
 });
+
+test("rewrites the client submission module for Vercel", async () => {
+  const vercel = await readFile(new URL("../vercel.json", import.meta.url), "utf8");
+  assert.match(vercel, /"source": "\/client-submission\.js", "destination": "\/public\/client-submission\.js"/);
+});

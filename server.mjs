@@ -116,10 +116,10 @@ function clientRateLimitKey(request, trustProxyHops) {
     const trustedIndex = forwarded.length - trustProxyHops;
     if (trustedIndex >= 0 && forwarded[trustedIndex].length <= 64) return forwarded[trustedIndex];
   }
-  return String(request.socket.remoteAddress || "unknown").slice(0, 64);
+  return String(request.socket?.remoteAddress || "unknown").slice(0, 64);
 }
 
-function createLeadRateLimiter({ maxRequests, windowMs, trustProxyHops, now }) {
+export function createLeadRateLimiter({ maxRequests, windowMs, trustProxyHops, now }) {
   const buckets = new Map();
   return (request) => {
     const timestamp = now().getTime();
@@ -136,6 +136,22 @@ function createLeadRateLimiter({ maxRequests, windowMs, trustProxyHops, now }) {
       retryAfterSeconds: Math.max(1, Math.ceil((windowMs - (timestamp - current.startedAt)) / 1000))
     };
   };
+}
+
+export function normalizeRateLimitConfig({ maxRequests = 8, windowMs = 60_000, trustProxyHops = 0 } = {}) {
+  return {
+    maxRequests: positiveInteger(maxRequests, 8, "OWNERINC_QUIZ_RATE_LIMIT_MAX", { max: 1_000 }),
+    windowMs: positiveInteger(windowMs, 60_000, "OWNERINC_QUIZ_RATE_LIMIT_WINDOW_MS", { min: 1_000, max: 3_600_000 }),
+    trustProxyHops: positiveInteger(trustProxyHops, 0, "OWNERINC_QUIZ_TRUST_PROXY_HOPS", { min: 0, max: 5 })
+  };
+}
+
+export function rateLimitConfigFromEnv(env = process.env) {
+  return normalizeRateLimitConfig({
+    maxRequests: env.OWNERINC_QUIZ_RATE_LIMIT_MAX || 8,
+    windowMs: env.OWNERINC_QUIZ_RATE_LIMIT_WINDOW_MS || 60_000,
+    trustProxyHops: env.OWNERINC_QUIZ_TRUST_PROXY_HOPS || 0
+  });
 }
 
 function nodeHeaders(request) {
@@ -189,14 +205,14 @@ export function createServer({
   const publicConfig = { privacyPolicyUrl, owntimeUrl, nestUrl };
   validatePublicConfig(publicConfig);
   const expectedOrigin = normalizePublicOrigin(publicOrigin);
-  const normalizedRateLimitMax = positiveInteger(rateLimitMax, 8, "OWNERINC_QUIZ_RATE_LIMIT_MAX", { max: 1_000 });
-  const normalizedRateLimitWindowMs = positiveInteger(rateLimitWindowMs, 60_000, "OWNERINC_QUIZ_RATE_LIMIT_WINDOW_MS", { min: 1_000, max: 3_600_000 });
-  const normalizedTrustProxyHops = positiveInteger(trustProxyHops, 0, "OWNERINC_QUIZ_TRUST_PROXY_HOPS", { min: 0, max: 5 });
+  const normalizedRateLimit = normalizeRateLimitConfig({
+    maxRequests: rateLimitMax,
+    windowMs: rateLimitWindowMs,
+    trustProxyHops
+  });
   const staticRoot = path.resolve(publicDirectory);
   const checkLeadRateLimit = createLeadRateLimiter({
-    maxRequests: normalizedRateLimitMax,
-    windowMs: normalizedRateLimitWindowMs,
-    trustProxyHops: normalizedTrustProxyHops,
+    ...normalizedRateLimit,
     now
   });
   const leadConfig = {

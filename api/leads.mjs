@@ -1,4 +1,10 @@
 import { handleLeadRequest } from "../src/lead-handler.mjs";
+import { createLeadRateLimiter, rateLimitConfigFromEnv } from "../server.mjs";
+
+const defaultRateLimiter = createLeadRateLimiter({
+  ...rateLimitConfigFromEnv(),
+  now: () => new Date()
+});
 
 function nodeRequestToWebRequest(request) {
   const protocol = request.headers?.["x-forwarded-proto"] || "https";
@@ -15,9 +21,23 @@ function nodeRequestToWebRequest(request) {
   });
 }
 
-export default async function handler(request, response) {
-  const webResponse = await handleLeadRequest(nodeRequestToWebRequest(request));
-  response.status(webResponse.status);
-  for (const [name, value] of webResponse.headers) response.setHeader(name, value);
-  response.send(await webResponse.text());
+export function createLeadRateLimitedHandler({ rateLimiter = defaultRateLimiter, handleRequest = handleLeadRequest } = {}) {
+  return async function handler(request, response) {
+    if (request.method === "POST") {
+      const rateLimit = rateLimiter(request);
+      if (!rateLimit.allowed) {
+        response.status(429);
+        response.setHeader("Retry-After", String(rateLimit.retryAfterSeconds));
+        response.setHeader("Content-Type", "application/json; charset=utf-8");
+        response.send(JSON.stringify({ status: "REJECTED", code: "RATE_LIMITED" }));
+        return;
+      }
+    }
+    const webResponse = await handleRequest(nodeRequestToWebRequest(request));
+    response.status(webResponse.status);
+    for (const [name, value] of webResponse.headers) response.setHeader(name, value);
+    response.send(await webResponse.text());
+  };
 }
+
+export default createLeadRateLimitedHandler();
