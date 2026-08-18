@@ -66,9 +66,15 @@ function renderQuestion({ focus = false } = {}) {
   choices.forEach((choice, index) => {
     const option = question.options[index];
     choice.hidden = !option;
-    if (!option) return;
+    if (!option) {
+      choice.classList.remove("is-selected");
+      radios[index].checked = false;
+      return;
+    }
     radios[index].value = option.value;
-    radios[index].checked = state.responses[question.id] === option.value;
+    const isSelected = state.responses[question.id] === option.value;
+    radios[index].checked = isSelected;
+    choice.classList.toggle("is-selected", isSelected);
     labels[index].textContent = option.label;
   });
   back.disabled = false;
@@ -120,6 +126,7 @@ document.querySelector("#start").addEventListener("click", () => {
 quizForm.addEventListener("change", (event) => {
   if (event.target.name !== "answer") return;
   state.responses[state.questions[state.questionIndex].id] = event.target.value;
+  choices.forEach((choice, index) => choice.classList.toggle("is-selected", radios[index].checked));
   continueButton.disabled = false;
 });
 

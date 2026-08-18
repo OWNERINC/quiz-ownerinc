@@ -126,13 +126,21 @@ test("keeps the visual system restrained and editorial", async () => {
     readFile(stylesUrl, "utf8")
   ]);
   assert.equal((styles.match(/@font-face\s*\{/g) || []).length, 2);
+  assert.match(styles, /--surface:\s*#f4efe7;[\s\S]*--surface-raised:\s*#fbf8f3;[\s\S]*--ink:\s*#292622;[\s\S]*--muted:\s*#716a61;[\s\S]*--bronze:\s*#9b7a52;[\s\S]*--line:\s*rgb\(41 38 34 \/ 18%\);[\s\S]*--focus:\s*#6d4e2c;[\s\S]*color-scheme:\s*light;/);
+  assert.doesNotMatch(styles, /--paper|--cream|color-scheme:\s*dark/);
   assert.match(styles, /font-family: Novelin;[\s\S]*?font-weight: 400;/);
   assert.match(styles, /font-family: Novelin;[\s\S]*?font-weight: 700;/);
+  assert.match(app, /choice\.classList\.toggle\("is-selected", isSelected\)/);
+  assert.match(styles, /\.answer-choice\.is-selected\s*\{[\s\S]*?background:[\s\S]*?box-shadow:[\s\S]*?var\(--bronze\)/);
+  assert.doesNotMatch(styles, /\.answer-choice:has\(input:checked\)/);
+  assert.match(styles, /\.answer-choice input\s*\{[\s\S]*?width:\s*44px;[\s\S]*?height:\s*44px;/);
+  assert.match(styles, /:focus-visible\s*\{[\s\S]*?outline:\s*3px solid var\(--focus\);/);
   assert.doesNotMatch(`${app}\n${styles}`, /Signaturia|parallax/);
   assert.doesNotMatch(`${html}\n${styles}`, /button__mark|intro::after/);
   assert.doesNotMatch(styles, /inset\s+(?:58vw|0\s+-14rem)/);
   assert.doesNotMatch(styles, /font-size:\s*clamp\(6rem,\s*11vw,\s*10rem\)/);
   assert.match(styles, /\.result__media\s*\{[\s\S]*?background-size:\s*cover;/);
+  assert.match(styles, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?transition:\s*none\s*!important;[\s\S]*?animation:\s*none\s*!important;/);
 });
 
 test("keeps normal journey stages fixed and restores short-height scrolling", async () => {
