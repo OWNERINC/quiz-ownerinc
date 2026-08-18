@@ -14,6 +14,11 @@ test("ships one semantic quiz form and one lead form", async () => {
   const html = await readFile(htmlUrl, "utf8");
   assert.match(html, /<main/);
   assert.match(html, /<link rel="icon" href="\/assets\/brand\/ownerinc-icon-white\.png" type="image\/png">/);
+  assert.match(html, /class="eyebrow">Uma leitura editorial Ownerinc<\/p>/);
+  assert.match(html, /class="intro__content intro__copy"/);
+  assert.match(html, /id="start" class="text-link text-link--button intro__cta" type="button"/);
+  assert.match(html, /01 \/ 08/);
+  assert.doesNotMatch(html, /01 \/ 05/);
   assert.match(html, /<h1/);
   assert.match(html, /<form[^>]+id="quiz-form"/);
   assert.match(html, /<fieldset/);
@@ -29,6 +34,10 @@ test("ships one semantic quiz form and one lead form", async () => {
   assert.equal((html.match(/<form[^>]+id="quiz-form"/g) || []).length, 1);
   assert.equal((html.match(/<form[^>]+id="lead-form"/g) || []).length, 1);
   assert.equal((html.match(/class="answer-choice"/g) || []).length, 4);
+  assert.match(html, /class="quiz__progress quiz__meta"/);
+  assert.match(html, /<div class="quiz__answers">[\s\S]*class="answer-choice"[\s\S]*<\/div>/);
+  assert.match(html, /class="result__copy"/);
+  assert.match(html, /class="result__actions"/);
   assert.match(html, /id="quiz-progress"[^>]+aria-live="polite"/);
   assert.doesNotMatch(html, /progress-track/);
 });

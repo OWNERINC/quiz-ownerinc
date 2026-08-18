@@ -16,14 +16,15 @@
       <header class="brand-lockup">
         <img src="/assets/brand/ownerinc-logo-white.png" alt="Ownerinc" width="432" height="108">
       </header>
-      <div class="intro__content">
+      <div class="intro__content intro__copy">
+        <p class="eyebrow">Uma leitura editorial Ownerinc</p>
         <h1 id="intro-title" tabindex="-1">Que forma de viver conversa com o seu jeito de aproveitar <em>Gramado?</em></h1>
         <p class="intro__summary">Algumas perguntas para sugerir uma afinidade editorial entre dois empreendimentos Ownerinc.</p>
-        <button id="start" class="button button--primary" type="button">
+        <button id="start" class="text-link text-link--button intro__cta" type="button">
           <span>Começar a responder</span>
         </button>
       </div>
-      <p class="intro__edition" aria-hidden="true">01 / 05</p>
+      <p class="intro__edition" aria-hidden="true">01 / 08</p>
     </section>
 
     <section id="quiz" class="quiz" aria-labelledby="quiz-title" hidden>
@@ -34,27 +35,29 @@
           <h2 id="quiz-title">O seu jeito de viver Gramado</h2>
         </div>
       </header>
-      <div class="quiz__progress">
+      <div class="quiz__progress quiz__meta">
         <p id="quiz-progress" aria-live="polite">Pergunta 1 de 8</p>
       </div>
       <form id="quiz-form" class="quiz__form">
         <fieldset>
           <legend id="question-prompt" tabindex="-1">Quando imagina sua estadia em Gramado, qual configuração mais combina com você?</legend>
-          <div class="answer-choice">
-            <input id="answer-owntime" type="radio" name="answer" value="owntime" required>
-            <label for="answer-owntime">A amplitude e a sensação de casa, com ambientes pensados para reunir diferentes gerações.</label>
-          </div>
-          <div class="answer-choice">
-            <input id="answer-nest" type="radio" name="answer" value="nest" required>
-            <label for="answer-nest">A praticidade de um apartamento contemporâneo, integrado à atmosfera de um Mountain Lodge.</label>
-          </div>
-          <div class="answer-choice" hidden>
-            <input id="answer-profile-3" type="radio" name="answer" required>
-            <label for="answer-profile-3"></label>
-          </div>
-          <div class="answer-choice" hidden>
-            <input id="answer-profile-4" type="radio" name="answer" required>
-            <label for="answer-profile-4"></label>
+          <div class="quiz__answers">
+            <div class="answer-choice">
+              <input id="answer-owntime" type="radio" name="answer" value="owntime" required>
+              <label for="answer-owntime">A amplitude e a sensação de casa, com ambientes pensados para reunir diferentes gerações.</label>
+            </div>
+            <div class="answer-choice">
+              <input id="answer-nest" type="radio" name="answer" value="nest" required>
+              <label for="answer-nest">A praticidade de um apartamento contemporâneo, integrado à atmosfera de um Mountain Lodge.</label>
+            </div>
+            <div class="answer-choice" hidden>
+              <input id="answer-profile-3" type="radio" name="answer" required>
+              <label for="answer-profile-3"></label>
+            </div>
+            <div class="answer-choice" hidden>
+              <input id="answer-profile-4" type="radio" name="answer" required>
+              <label for="answer-profile-4"></label>
+            </div>
           </div>
         </fieldset>
         <div class="quiz__actions">
