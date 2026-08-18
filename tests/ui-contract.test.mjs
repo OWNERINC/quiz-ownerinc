@@ -135,6 +135,7 @@ test("keeps the visual system restrained and editorial", async () => {
   assert.doesNotMatch(styles, /\.answer-choice:has\(input:checked\)/);
   assert.match(styles, /\.answer-choice input\s*\{[\s\S]*?width:\s*44px;[\s\S]*?height:\s*44px;/);
   assert.match(styles, /:focus-visible\s*\{[\s\S]*?outline:\s*3px solid var\(--focus\);/);
+  assert.match(styles, /\.text-link\s*\{[\s\S]*?text-decoration:\s*underline;/);
   assert.doesNotMatch(`${app}\n${styles}`, /Signaturia|parallax/);
   assert.doesNotMatch(`${html}\n${styles}`, /button__mark|intro::after/);
   assert.doesNotMatch(styles, /inset\s+(?:58vw|0\s+-14rem)/);

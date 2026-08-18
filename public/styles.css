@@ -539,6 +539,8 @@ h1 em {
   font-size: .875rem;
   font-weight: 700;
   letter-spacing: .08em;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
   text-underline-offset: .35rem;
   text-transform: uppercase;
 }
