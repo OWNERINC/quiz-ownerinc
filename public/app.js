@@ -39,6 +39,7 @@ let configReady = false;
 const intro = document.querySelector("#intro");
 const quiz = document.querySelector("#quiz");
 const quizForm = document.querySelector("#quiz-form");
+const questionContent = quizForm.querySelector("fieldset");
 const progress = document.querySelector("#quiz-progress");
 const prompt = document.querySelector("#question-prompt");
 const choices = [...document.querySelectorAll(".answer-choice")];
@@ -58,9 +59,12 @@ const leadError = document.querySelector("#lead-error");
 const configStatus = document.querySelector("#config-status");
 const submitLead = document.querySelector("#submit-lead");
 const success = document.querySelector("#success");
+let questionTransitionFrame;
 
 function renderQuestion({ focus = false } = {}) {
   const question = state.questions[state.questionIndex];
+  if (questionTransitionFrame) cancelAnimationFrame(questionTransitionFrame);
+  questionContent.classList.add("is-changing");
   progress.textContent = `Pergunta ${state.questionIndex + 1} de ${state.questions.length}`;
   prompt.textContent = question.prompt;
   choices.forEach((choice, index) => {
@@ -81,6 +85,10 @@ function renderQuestion({ focus = false } = {}) {
   back.textContent = state.questionIndex === 0 ? "Início" : "Voltar";
   continueButton.disabled = !state.responses[question.id];
   continueButton.textContent = state.questionIndex === state.questions.length - 1 ? "Ver meu resultado" : "Continuar";
+  questionTransitionFrame = requestAnimationFrame(() => {
+    questionContent.classList.remove("is-changing");
+    questionTransitionFrame = null;
+  });
   if (focus) prompt.focus();
 }
 

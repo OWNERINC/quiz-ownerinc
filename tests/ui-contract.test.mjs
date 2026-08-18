@@ -68,6 +68,16 @@ test("client consumes the established domain and API interfaces", async () => {
   assert.match(app, /submitLead\.disabled = false/);
 });
 
+test("uses an interruptible reduced-motion-safe question transition", async () => {
+  const [app, styles] = await Promise.all([readFile(appUrl, "utf8"), readFile(stylesUrl, "utf8")]);
+  assert.match(app, /questionContent\.classList\.add\("is-changing"\);[\s\S]*?prompt\.textContent = question\.prompt;/);
+  assert.match(app, /if \(questionTransitionFrame\) cancelAnimationFrame\(questionTransitionFrame\);/);
+  assert.match(app, /requestAnimationFrame\(\(\) => \{[\s\S]*?questionContent\.classList\.remove\("is-changing"\);/);
+  assert.match(styles, /\.quiz__form fieldset\s*\{[\s\S]*?transition:\s*opacity 200ms ease-out, transform 200ms ease-out;/);
+  assert.match(styles, /\.quiz__form fieldset\.is-changing\s*\{[\s\S]*?opacity:\s*0;[\s\S]*?transform:\s*translateY\(6px\);/);
+  assert.match(styles, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.quiz__form fieldset[\s\S]*?transition:\s*none !important;[\s\S]*?animation:\s*none !important;/);
+});
+
 test("uses the approved result CTA", async () => {
   const html = await readFile(htmlUrl, "utf8");
   assert.match(html, /<span>Falar com a equipe Ownerinc<\/span>/);

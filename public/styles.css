@@ -297,6 +297,12 @@ h1 em {
   margin: 0;
   border: 0;
   padding: 0;
+  transition: opacity 200ms ease-out, transform 200ms ease-out;
+}
+
+.quiz__form fieldset.is-changing {
+  opacity: 0;
+  transform: translateY(6px);
 }
 
 .quiz__form legend {
@@ -967,6 +973,7 @@ noscript {
   .brand-lockup,
   .intro__content,
   .quiz__form,
+  .quiz__form fieldset,
   .answer-choice {
     transition: none !important;
     animation: none !important;
