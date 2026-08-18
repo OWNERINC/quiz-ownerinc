@@ -1,4 +1,4 @@
-import { AFFINITY_QUESTIONS, QUESTIONS, classifyAnswers, shuffleQuestions } from "./quiz.js";
+import { AFFINITY_QUESTIONS, QUESTIONS, classifyAnswers } from "./quiz.js";
 import { createSubmissionAttempt, toClientSubmission } from "./client-submission.js";
 
 const RESULTS = {
@@ -16,7 +16,7 @@ const RESULTS = {
 
 const state = {
   questionIndex: 0,
-  questions: shuffleQuestions(QUESTIONS),
+  questions: QUESTIONS,
   responses: {},
   result: null,
   submissionAttempt: createSubmissionAttempt()
@@ -147,7 +147,7 @@ back.addEventListener("click", () => {
 
 function restartQuiz() {
   state.questionIndex = 0;
-  state.questions = shuffleQuestions(QUESTIONS);
+  state.questions = QUESTIONS;
   state.responses = {};
   state.result = null;
   state.submissionAttempt = createSubmissionAttempt();

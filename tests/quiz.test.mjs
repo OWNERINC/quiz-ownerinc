@@ -1,31 +1,23 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { AFFINITY_QUESTIONS, PROFILE_QUESTIONS, QUESTIONS, classifyAnswers, shuffleQuestions } from "../public/quiz.js";
+import { AFFINITY_QUESTIONS, PROFILE_QUESTIONS, QUESTIONS, classifyAnswers } from "../public/quiz.js";
 
 test("publishes the five approved binary questions exactly", () => {
   assert.deepEqual(AFFINITY_QUESTIONS, [
     {
+      id: "experiencia",
+      prompt: "Qual experiência você mais deseja levar das suas férias?",
+      options: [
+        { value: "nest", label: "Desacelerar em uma experiência contemporânea, sensorial e contemplativa." },
+        { value: "owntime", label: "Criar memórias em família, com espaço, acolhimento e tempo para estar junto." }
+      ]
+    },
+    {
       id: "acomodacao",
       prompt: "Quando imagina sua estadia em Gramado, qual configuração mais combina com você?",
       options: [
-        { value: "owntime", label: "A amplitude e a sensação de casa, com ambientes pensados para reunir diferentes gerações." },
-        { value: "nest", label: "A praticidade de um apartamento contemporâneo, integrado à atmosfera de um Mountain Lodge." }
-      ]
-    },
-    {
-      id: "atmosfera",
-      prompt: "Qual atmosfera você prefere encontrar ao chegar?",
-      options: [
-        { value: "owntime", label: "Um refúgio conectado ao bosque, com natureza e convivência marcando o ritmo dos dias." },
-        { value: "nest", label: "Um refúgio de montanha orgânico e intimista, voltado ao conforto sensorial e à contemplação." }
-      ]
-    },
-    {
-      id: "convivencia",
-      prompt: "Qual ritmo de convivência mais combina com você?",
-      options: [
-        { value: "owntime", label: "Alternar momentos em família com experiências compartilhadas e atividades para diferentes idades." },
-        { value: "nest", label: "Equilibrar momentos de lazer com pausas de autocuidado, silêncio e bem-estar." }
+        { value: "nest", label: "A praticidade de um apartamento contemporâneo, integrado à atmosfera de um Mountain Lodge." },
+        { value: "owntime", label: "A amplitude e a sensação de casa, com ambientes pensados para reunir diferentes gerações." }
       ]
     },
     {
@@ -37,11 +29,19 @@ test("publishes the five approved binary questions exactly", () => {
       ]
     },
     {
-      id: "experiencia",
-      prompt: "Qual experiência você mais deseja levar das suas férias?",
+      id: "atmosfera",
+      prompt: "Qual atmosfera você prefere encontrar ao chegar?",
       options: [
-        { value: "owntime", label: "Criar memórias em família, com espaço, acolhimento e tempo para estar junto." },
-        { value: "nest", label: "Desacelerar em uma experiência contemporânea, sensorial e contemplativa." }
+        { value: "nest", label: "Um refúgio de montanha orgânico e intimista, voltado ao conforto sensorial e à contemplação." },
+        { value: "owntime", label: "Um refúgio conectado ao bosque, com natureza e convivência marcando o ritmo dos dias." }
+      ]
+    },
+    {
+      id: "convivencia",
+      prompt: "Qual ritmo de convivência mais combina com você?",
+      options: [
+        { value: "owntime", label: "Alternar momentos em família com experiências compartilhadas e atividades para diferentes idades." },
+        { value: "nest", label: "Equilibrar momentos de lazer com pausas de autocuidado, silêncio e bem-estar." }
       ]
     }
   ]);
@@ -52,17 +52,23 @@ test("publishes three profile questions with stable ids and four options", () =>
     id,
     options: options.map(({ value }) => value)
   })), [
-    { id: "companhia", options: ["proprio-ritmo", "casal", "familia", "geracoes"] },
-    { id: "momento", options: ["desacelerar", "descobertas-a-dois", "memorias-em-familia", "pessoas-queridas"] },
-    { id: "viagem", options: ["liberdade", "planejamento-a-dois", "conforto-familiar", "reunir-pessoas"] }
-  ]);
+     { id: "momento", options: ["pessoas-queridas", "memorias-em-familia", "desacelerar", "descobertas-a-dois"] },
+     { id: "companhia", options: ["geracoes", "proprio-ritmo", "casal", "familia"] },
+     { id: "viagem", options: ["reunir-pessoas", "conforto-familiar", "planejamento-a-dois", "liberdade"] }
+   ]);
 });
 
-test("shuffles all eight questions without changing the catalog", () => {
-  const shuffled = shuffleQuestions(QUESTIONS, () => 0);
-  assert.equal(shuffled.length, QUESTIONS.length);
-  assert.deepEqual(new Set(shuffled.map(({ id }) => id)), new Set(QUESTIONS.map(({ id }) => id)));
-  assert.notDeepEqual(shuffled.map(({ id }) => id), QUESTIONS.map(({ id }) => id));
+test("keeps the fixed shuffled question order", () => {
+  assert.deepEqual(QUESTIONS.map(({ id }) => id), [
+    "experiencia",
+    "companhia",
+    "acomodacao",
+    "momento",
+    "localizacao",
+    "viagem",
+    "atmosfera",
+    "convivencia"
+  ]);
 });
 
 test("returns the simple majority for every possible score", () => {

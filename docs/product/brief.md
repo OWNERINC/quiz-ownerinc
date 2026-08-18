@@ -9,8 +9,8 @@ editorial indicativa em Gramado.
 ## Escopo
 
 - Abertura editorial com identidade neutra da Ownerinc.
-- Oito perguntas binárias apresentadas uma por tela, com ordem embaralhada a cada
-  tentativa.
+- Oito perguntas binárias apresentadas uma por tela, em uma ordem fixa previamente
+  embaralhada.
 - Tres perguntas adicionais identificam companhia, momento e forma de viajar,
   sem alterar a afinidade calculada.
 - Resultado direto por afinidade editorial, sem alegacao financeira, garantia de
