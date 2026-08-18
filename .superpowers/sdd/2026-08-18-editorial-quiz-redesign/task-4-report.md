@@ -176,3 +176,166 @@ required before repeating the production smoke check.
 - `npm run verify` remains red only because Windows blocks the temporary symlink test with `EPERM` in this environment.
 - Production is stale relative to `cec8b67`; it was not changed because the worktree is not linked to Vercel and creating a project was explicitly disallowed.
 - No production deploy URL was generated in this task.
+
+## Task 4 Resume: Deployment and Expanded Keyboard Verification
+
+Date: 2026-08-18
+
+### Vercel Link and Environment
+
+Command:
+
+```text
+npx vercel link --project lp_tijolo --scope testesccc --yes
+```
+
+Output:
+
+```text
+Directory       C:\Ownerinc\.tmp-quiz-redesign
+Searching for existing projects…
+✓ Linked          testesccc/lp_tijolo
+```
+
+No project was created. Vercel generated local ignored link metadata and a
+temporary `.env.local`; the temporary file was removed and no environment
+material was committed.
+
+Production environment inspection initially showed `PUBLIC_ORIGIN` already
+present. The following missing variables were added only to the Production
+environment with the user-provided values:
+
+```text
+OWNERINC_QUIZ_WEBHOOK_ENABLED=true
+OWNERINC_QUIZ_WEBHOOK_URL=https://n8n.ownerinc.com.br/webhook/ownerinc/quiz/tijolo/v1/intake
+OWNERINC_QUIZ_CONSENT_TEXT_VERSION=v1
+OWNERINC_QUIZ_POLICY_REFERENCE=https://ownerinc.com.br/politica-de-privacidade/
+OWNERINC_QUIZ_ENVIRONMENT=production
+```
+
+`PUBLIC_ORIGIN=https://lptijolo.vercel.app` was already present and was not
+overwritten. Existing legacy URL and webhook variables were left untouched.
+No token or unrelated secret was created.
+
+### Deployment
+
+Initial requested deployment:
+
+```text
+npx vercel deploy --prod --yes --scope testesccc
+```
+
+Initial deployment completed and aliased the public URL, but production smoke
+found that `/client-submission.js` returned `404`, preventing `app.js` from
+initializing. The missing rewrite was the only application change made during
+this resume:
+
+```text
+{ "source": "/client-submission.js", "destination": "/public/client-submission.js" }
+```
+
+The fix was committed as `bc6703d` (`fix(quiz): route client submission module`)
+and pushed to `quiz-ownerinc/main`:
+
+```text
+To https://github.com/OWNERINC/quiz-ownerinc.git
+   0287f0f..bc6703d  HEAD -> main
+```
+
+The corrected production deployment used the same command:
+
+```text
+npx vercel deploy --prod --yes --scope testesccc
+```
+
+Output URLs:
+
+- Inspect: https://vercel.com/testesccc/lp_tijolo/Gt5seQX3WQ4dJYAcZCayFGfWGqkW
+- Deployment: https://lptijolo-fac6s5ww8-testesccc.vercel.app
+- Preserved production alias: https://lptijolo.vercel.app
+
+The deployment completed with `✓ Ready in 9s` and `▲ Aliased
+https://lptijolo.vercel.app`. Vercel emitted non-blocking warnings that the
+existing `builds` configuration overrides dashboard build settings and that
+the `deploy` directory could be deployed separately; neither changed this
+deployment.
+
+### Production Endpoint Evidence
+
+After the corrected deployment:
+
+```text
+GET https://lptijolo.vercel.app/api/config
+status=200
+body={"privacyPolicyUrl":"https://ownerinc.com.br/politica-de-privacidade/","owntimeUrl":"https://owntime.com.br/","nestUrl":"https://nestgramado.com.br/"}
+
+GET https://lptijolo.vercel.app/client-submission.js
+status=200
+content-type=application/javascript; charset=utf-8
+
+GET https://lptijolo.vercel.app
+html_intro_0108=True
+css_surface=True
+css_transition=True
+js_selected_hook=True
+```
+
+The optional `/api/health` route is not exposed by the Vercel rewrites and
+returns `404 NOT_FOUND`; it is not used by the quiz client or the requested
+journey.
+
+### Expanded Production Chromium Verification
+
+Command:
+
+```text
+BASE_URL=https://lptijolo.vercel.app playwright test task4-keyboard-smoke.spec.mjs --reporter=line
+```
+
+Result:
+
+```text
+Running 7 tests using 1 worker
+7 passed (15.3s)
+```
+
+Responsive production journey:
+
+```text
+320x568   passed
+390x844   passed
+463x968   passed
+768x1024  passed
+1366x768  passed
+```
+
+Each viewport covered the intro, all eight questions, answer selection,
+back-navigation, result, lead form, synthetic error response, synthetic
+success response, no horizontal overflow, and no console/page/request errors.
+The lead mock returned `503` on the first submission and `202` on the second;
+no real lead request was sent.
+
+Keyboard verification passed at `390x844` and covered:
+
+- Intro start CTA and visible focus outline.
+- Every visible answer radio across all eight questions. Each native radio group was reached by Tab, then remaining options were reached with ArrowDown, preserving actual keyboard semantics.
+- Continue on every question and Back on question 2.
+- Result contact button.
+- Result destination link when visible.
+- Result restart.
+- Lead name, WhatsApp, e-mail, consent, submit, synthetic validation/error recovery, and retry.
+- Success restart.
+- No console, page, or failed-request errors.
+
+Reduced-motion verification passed at `390x844`:
+
+```text
+computed transition=0s
+computed animation=none
+```
+
+### Resume Concerns
+
+- The production deployment is now complete at the preserved public alias and the corrected production smoke suite passes.
+- `npm run verify` still reports the known Windows `EPERM` symlink limitation: 38 passed, 1 environment-blocked test. The remaining project tests pass directly.
+- `/api/health` is not mapped in `vercel.json` and returns `404`; this is informational because it is not part of the quiz client flow.
