@@ -184,6 +184,93 @@ form submissions were omitted.
 - Production alias: `https://lptijolo.vercel.app`
 - Vercel result: `Ready`; production alias confirmed
 
+## Final Review Fix Wave 2
+
+Status: PASS. The final review findings were fixed and verified without changing
+webhooks, payloads, server classification, rate limits, CTA text, or the
+no-fake-proof/urgency policy. No real lead was sent.
+
+### Fixes
+
+- `Falar com atendente` now unhides the form first, then defers both the nested
+  `#result` scroll and `#lead-title` focus to one `requestAnimationFrame`
+  callback. Focus uses `preventScroll: true`, preventing a second jump after the
+  layout-safe scroll.
+- Hero heading rules are scoped to `.result__hero h2`; the registration heading
+  explicitly uses `var(--ink)` on the light form panel.
+- The UI contract now parses both static `RESULTS` entries and asserts exactly
+  three literal benefit strings in each array, while the existing runtime
+  invariant remains active.
+
+### Verification
+
+Focused UI contract:
+
+```text
+node --test tests/ui-contract.test.mjs
+13 passed, 0 failed
+```
+
+Full suite:
+
+```text
+npm test
+45 tests discovered
+44 passed
+1 failed: known Windows symlink EPERM
+```
+
+The only full-suite failure remains
+`does not serve a public symlink whose target is outside public`. Windows denies
+the temporary symlink creation at `tests/server.test.mjs:274` before the
+application assertion runs.
+
+### Chromium Smoke
+
+The temporary Playwright/Chromium harness ran all eight questions and the full
+result flow with synthetic lead responses. It passed locally at `390x844` and
+in production at every requested viewport:
+
+- `320x568`: production passed
+- `390x844`: local and production passed
+- `463x968`: production passed
+- `768x1024`: production passed
+- `1366x768`: production passed
+
+The smoke verified the layout-safe CTA scroll, visible registration heading,
+positive nested scroll at `390x844`, heading visibility, computed form-panel
+contrast of at least `4.5:1` at mobile and desktop, all form fields, native
+validation, synthetic `503` recovery, synthetic `202` success, no horizontal
+overflow, no application console/page errors, and unchanged no-real-lead
+behavior. It also verified `/api/config` and `/client-submission.js` returned
+`200` in production.
+
+### Push And Redeploy
+
+- Fix commit: `4f5825e` (`fix(quiz): defer result form reveal scroll`)
+- Push: successful to `quiz-ownerinc/main`
+- Existing Vercel project: `lp_tijolo`
+- Deployment inspection:
+  `https://vercel.com/testesccc/lp_tijolo/9z3C7S54YvigQhgJPk93kwVDFCJv`
+- Production deployment URL:
+  `https://lptijolo-f2kstd9z3-testesccc.vercel.app`
+- Production alias: `https://lptijolo.vercel.app`
+- Vercel result: `Ready`; production alias confirmed
+
+The report update was committed after verification and pushed to
+`quiz-ownerinc/main`.
+
+### Concerns
+
+- The known Windows temporary symlink `EPERM` keeps the full suite at 44/45;
+  rerun on an environment permitting symlink creation for a clean result.
+- One intermediate smoke attempt used an overly strict positive-scroll check at
+  `768px`, where the form can already be visible without scrolling. The harness
+  was corrected to require the nested scroll specifically at the required
+  `390px` case; the complete production rerun passed.
+- Vercel retained the existing non-blocking warnings about custom `builds`
+  configuration and the open-ended Node engine range.
+
 ### Concerns
 
 - The full-suite symlink test remains blocked by Windows `EPERM`; rerun that
