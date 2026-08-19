@@ -271,6 +271,85 @@ The report update was committed after verification and pushed to
 - Vercel retained the existing non-blocking warnings about custom `builds`
   configuration and the open-ended Node engine range.
 
+## Final Release Fix
+
+Status: PASS. The CTA registration scroll is now deterministic. Webhooks,
+payloads, server classification, rate limits, and real-lead behavior remain
+unchanged.
+
+### Fix
+
+- `scrollResultTo` accepts an explicit behavior while preserving the existing
+  reduced-motion-aware default for other callers.
+- After `#lead-form` is unhidden and the next layout-safe animation frame runs,
+  the CTA calls the nested `#result` scroll with `behavior: "instant"`.
+- `#lead-title` is focused immediately afterward with `preventScroll: true`,
+  preventing a second focus-induced jump.
+- The focused contract asserts the explicit instant CTA call and preserves the
+  reduced-motion-aware restart/page scroll contract.
+
+### Browser Regression
+
+A temporary Playwright/Chromium regression harness recorded the nested
+`scrollTo` call and asserted that after the CTA layout frame:
+
+- `#lead-form` is fully inside the viewport;
+- `#lead-title` is fully inside the viewport;
+- the final CTA scroll call has `behavior: "instant"`;
+- no console or page errors occur.
+
+Results:
+
+- Local `390x844`: passed
+- Local `1366x768`: passed
+- Production `390x844`: passed
+- Production `1366x768`: passed
+
+No form was submitted; no real lead or webhook request was sent.
+
+### Tests
+
+Focused UI contract:
+
+```text
+node --test tests/ui-contract.test.mjs
+13 passed, 0 failed
+```
+
+Full suite:
+
+```text
+npm test
+45 tests discovered
+44 passed
+1 failed: known Windows symlink EPERM
+```
+
+The only failure remains the Windows temporary symlink setup at
+`tests/server.test.mjs:274`.
+
+### Push And Redeploy
+
+- Fix commit: `d57fbf1` (`fix(quiz): make CTA result scroll instant`)
+- Push: successful to `quiz-ownerinc/main`
+- Existing Vercel project: `lp_tijolo`
+- Deployment inspection:
+  `https://vercel.com/testesccc/lp_tijolo/v292xPSjmuDvLk4bxpRDxqLzCkxd`
+- Production deployment URL:
+  `https://lptijolo-7la64eixn-testesccc.vercel.app`
+- Production alias: `https://lptijolo.vercel.app`
+- Vercel result: `Ready`; production alias confirmed
+
+The report update was committed after verification and pushed to
+`quiz-ownerinc/main`.
+
+### Concerns
+
+- The known Windows symlink `EPERM` remains the only full-suite failure; rerun
+  on an environment permitting temporary symlink creation for 45/45.
+- Vercel retained the existing non-blocking warnings about custom `builds`
+  configuration and the open-ended Node engine range.
+
 ### Concerns
 
 - The full-suite symlink test remains blocked by Windows `EPERM`; rerun that
