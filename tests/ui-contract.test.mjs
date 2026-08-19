@@ -43,16 +43,28 @@ test("ships one semantic quiz form and one lead form", async () => {
   assert.doesNotMatch(html, /progress-track/);
 });
 
-test("keeps result, lead form and success as distinct journey stages", async () => {
+test("keeps result landing blocks and semantic lead registration intact", async () => {
   const html = await readFile(htmlUrl, "utf8");
   assert.match(html, /<section[^>]+id="result"[^>]+hidden/);
-  assert.match(html, /<form[^>]+id="lead-form"[^>]+hidden/);
+  assert.match(html, /class="result__hero"/);
+  assert.match(html, /id="result-subtitle"/);
+  assert.match(html, /id="result-benefits"[^>]*>\s*<\/ul>/);
+  assert.match(html, /id="result-trust"/);
+  assert.match(html, /class="result__registration"[\s\S]*<form[^>]+id="lead-form"[^>]+hidden/);
   assert.match(html, /<section[^>]+id="success"[^>]+hidden/);
   assert.match(html, /data-config="privacyPolicyUrl"/);
   assert.match(html, /Autorizo a Ownerinc a entrar em contato sobre os empreendimentos apresentados e\s+declaro que li a <a data-config="privacyPolicyUrl">Política de Privacidade<\/a>\./);
   assert.match(html, /propriedade compartilhada/);
   assert.match(html, /id="restart-result"/);
   assert.match(html, /id="restart-success"/);
+  assert.match(html, /<label[^>]+for="name"[^>]*>Nome<\/label>[\s\S]*<input id="name" name="name"/);
+  assert.match(html, /<label[^>]+for="whatsapp"[^>]*>WhatsApp com DDD<\/label>[\s\S]*<input id="whatsapp" name="whatsapp"/);
+  assert.match(html, /<label[^>]+for="email"[^>]*>E-mail<\/label>[\s\S]*<input id="email" name="email"/);
+  assert.match(html, /<input id="consent" name="consent" type="checkbox"/);
+  assert.match(html, /id="config-status"[^>]+role="status"/);
+  assert.match(html, /id="lead-error"[^>]+role="alert"/);
+  assert.match(html, /id="submit-lead"[^>]+>Enviar meus dados<\/button>/);
+  assert.doesNotMatch(html, /testimonial|depoimento|avaliações|avaliacoes|urgência|urgencia|escassez|últimas vagas|ultimas vagas|timer/i);
 });
 
 test("client consumes the established domain and API interfaces", async () => {
@@ -81,7 +93,7 @@ test("uses an interruptible reduced-motion-safe question transition", async () =
 
 test("uses the approved result CTA", async () => {
   const html = await readFile(htmlUrl, "utf8");
-  assert.match(html, /<span>Falar com a equipe Ownerinc<\/span>/);
+  assert.match(html, /<span>Falar com atendente<\/span>/);
 });
 
 test("frames the result as an editorial preference and improves form recovery", async () => {
