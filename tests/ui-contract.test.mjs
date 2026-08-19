@@ -96,8 +96,8 @@ test("renders approved result content safely and navigates to registration", asy
   assert.match(app, /const item = document\.createElement\("li"\);[\s\S]*?item\.textContent = benefit;/);
   assert.doesNotMatch(app, /result(?:Subtitle|Benefits)\.innerHTML/);
   assert.match(app, /leadTitle\.textContent = content\.leadTitle \|\| "Fale com a Ownerinc";/);
-  assert.match(app, /function scrollResultTo\(element\)[\s\S]*?result\.scrollTo\(\{ top: Math\.max\(0, targetTop\), behavior: getScrollBehavior\(\) \}\);/);
-  assert.match(app, /leadForm\.hidden = false;\s*requestAnimationFrame\(\(\) => \{\s*scrollResultTo\(leadForm\);\s*leadTitle\.focus\(\{ preventScroll: true \}\);\s*\}\);/);
+  assert.match(app, /function scrollResultTo\(element, behavior = getScrollBehavior\(\)\)[\s\S]*?result\.scrollTo\(\{ top: Math\.max\(0, targetTop\), behavior \}\);/);
+  assert.match(app, /leadForm\.hidden = false;\s*requestAnimationFrame\(\(\) => \{\s*scrollResultTo\(leadForm, "instant"\);\s*leadTitle\.focus\(\{ preventScroll: true \}\);\s*\}\);/);
   assert.match(app, /leadTitle\.focus\(\{ preventScroll: true \}\);/);
 });
 
@@ -105,7 +105,8 @@ test("uses instant scrolling only when reduced motion is requested", async () =>
   const app = await readFile(appUrl, "utf8");
   assert.match(app, /function getScrollBehavior\(\)\s*\{\s*return window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches \? "instant" : "smooth";/);
   assert.match(app, /scrollTo\(\{ top: 0, behavior: getScrollBehavior\(\) \}\);/);
-  assert.match(app, /result\.scrollTo\(\{ top: Math\.max\(0, targetTop\), behavior: getScrollBehavior\(\) \}\);/);
+  assert.match(app, /function scrollResultTo\(element, behavior = getScrollBehavior\(\)\)/);
+  assert.match(app, /scrollResultTo\(leadForm, "instant"\)/);
 });
 
 test("resets the nested result scroll position between quiz runs", async () => {

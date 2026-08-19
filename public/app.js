@@ -88,10 +88,10 @@ function getScrollBehavior() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
 }
 
-function scrollResultTo(element) {
+function scrollResultTo(element, behavior = getScrollBehavior()) {
   const resultTop = result.getBoundingClientRect().top;
   const targetTop = element.getBoundingClientRect().top - resultTop + result.scrollTop;
-  result.scrollTo({ top: Math.max(0, targetTop), behavior: getScrollBehavior() });
+  result.scrollTo({ top: Math.max(0, targetTop), behavior });
 }
 
 function renderQuestion({ focus = false } = {}) {
@@ -232,7 +232,7 @@ document.querySelector("#restart-success").addEventListener("click", restartQuiz
 document.querySelector("#show-lead-form").addEventListener("click", () => {
   leadForm.hidden = false;
   requestAnimationFrame(() => {
-    scrollResultTo(leadForm);
+    scrollResultTo(leadForm, "instant");
     leadTitle.focus({ preventScroll: true });
   });
 });
