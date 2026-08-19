@@ -231,8 +231,10 @@ document.querySelector("#restart-success").addEventListener("click", restartQuiz
 
 document.querySelector("#show-lead-form").addEventListener("click", () => {
   leadForm.hidden = false;
-  scrollResultTo(leadForm);
-  leadTitle.focus({ preventScroll: true });
+  requestAnimationFrame(() => {
+    scrollResultTo(leadForm);
+    leadTitle.focus({ preventScroll: true });
+  });
 });
 
 leadForm.addEventListener("submit", async (event) => {

@@ -83,7 +83,9 @@ test("client consumes the established domain and API interfaces", async () => {
 
 test("renders approved result content safely and navigates to registration", async () => {
   const app = await readFile(appUrl, "utf8");
-  assert.equal((app.match(/benefits:\s*\[/g) || []).length, 2);
+  const benefitEntries = [...app.matchAll(/benefits:\s*\[((?:\s*"[^"]+"\s*,?)+)\s*\]/g)];
+  assert.equal(benefitEntries.length, 2);
+  benefitEntries.forEach(([, benefits]) => assert.equal((benefits.match(/"[^"]+"/g) || []).length, 3));
   assert.match(app, /const EXPECTED_BENEFIT_COUNT = 3;/);
   assert.match(app, /content\.benefits\.length !== EXPECTED_BENEFIT_COUNT/);
   assert.equal((app.match(/leadTitle:/g) || []).length, 2);
@@ -95,7 +97,7 @@ test("renders approved result content safely and navigates to registration", asy
   assert.doesNotMatch(app, /result(?:Subtitle|Benefits)\.innerHTML/);
   assert.match(app, /leadTitle\.textContent = content\.leadTitle \|\| "Fale com a Ownerinc";/);
   assert.match(app, /function scrollResultTo\(element\)[\s\S]*?result\.scrollTo\(\{ top: Math\.max\(0, targetTop\), behavior: getScrollBehavior\(\) \}\);/);
-  assert.match(app, /leadForm\.hidden = false;\s*scrollResultTo\(leadForm\);\s*leadTitle\.focus\(\{ preventScroll: true \}\);/);
+  assert.match(app, /leadForm\.hidden = false;\s*requestAnimationFrame\(\(\) => \{\s*scrollResultTo\(leadForm\);\s*leadTitle\.focus\(\{ preventScroll: true \}\);\s*\}\);/);
   assert.match(app, /leadTitle\.focus\(\{ preventScroll: true \}\);/);
 });
 
@@ -180,6 +182,9 @@ test("styles the result as a scrollable three-block landing page", async () => {
   assert.match(styles, /\.result__hero\s*\{[\s\S]*?min-height:[\s\S]*?overflow:\s*hidden;/);
   assert.match(styles, /\.result__hero \.result__media\s*\{[\s\S]*?inset:\s*-4%;/);
   assert.match(styles, /\.result__subtitle\s*\{[\s\S]*?color:\s*rgb\(255 255 255 \/ 92%\);/);
+  assert.match(styles, /\.result__hero h2\s*\{/);
+  assert.doesNotMatch(styles, /\.result h2\s*\{/);
+  assert.match(styles, /\.lead-form h2\s*\{[\s\S]*?color:\s*var\(--ink\);/);
   assert.match(styles, /\.result__hero \.button--light\s*\{[\s\S]*?background:\s*#fff;[\s\S]*?color:\s*var\(--ink\);/);
   assert.match(styles, /\.result__concept\s*\{[\s\S]*?background:\s*var\(--surface-raised\);/);
   assert.match(styles, /\.result__benefits\s*\{[\s\S]*?border-top:\s*1px solid var\(--bronze\);[\s\S]*?list-style:\s*disc;/);
