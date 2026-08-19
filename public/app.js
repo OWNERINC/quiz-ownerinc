@@ -5,12 +5,26 @@ const RESULTS = {
   owntime: {
     title: "Owntime",
     logo: "/assets/results/owntime-logo-white.png",
-    copy: "Suas respostas se aproximam editorialmente do Owntime. Um ponto de partida para conhecer uma proposta de espaço, natureza e convivência."
+    copy: "Suas respostas se aproximam editorialmente do Owntime. Um ponto de partida para conhecer uma proposta de espaço, natureza e convivência.",
+    subtitle: "Mais tempo para estar junto, com espaço, natureza e hospitalidade em Gramado.",
+    benefits: [
+      "Ambientes amplos para reunir a família.",
+      "Conexão com a natureza e o ritmo de Gramado.",
+      "Hospitalidade para tornar cada estadia mais leve."
+    ],
+    leadTitle: "Fale sobre o Owntime"
   },
   nest: {
     title: "Nest Mountain Lodge",
     logo: "/assets/results/nest-logo-white.png",
-    copy: "Suas respostas se aproximam editorialmente do Nest Mountain Lodge. Um ponto de partida para conhecer uma proposta de arquitetura, bem-estar e contemplação."
+    copy: "Suas respostas se aproximam editorialmente do Nest Mountain Lodge. Um ponto de partida para conhecer uma proposta de arquitetura, bem-estar e contemplação.",
+    subtitle: "Um refúgio de montanha para desacelerar com conforto, bem-estar e praticidade.",
+    benefits: [
+      "Arquitetura orgânica integrada à paisagem.",
+      "Conforto sensorial para momentos de descanso e bem-estar.",
+      "Praticidade para aproveitar uma experiência de Mountain Lodge em Gramado."
+    ],
+    leadTitle: "Fale sobre o Nest Mountain Lodge"
   }
 };
 
@@ -52,6 +66,8 @@ const resultTitle = document.querySelector("#result-title");
 const resultLogo = document.querySelector("#result-logo");
 const resultWordmark = document.querySelector("#result-wordmark");
 const resultCopy = document.querySelector("#result-copy");
+const resultSubtitle = document.querySelector("#result-subtitle");
+const resultBenefits = document.querySelector("#result-benefits");
 const resultLink = document.querySelector("#result-link");
 const leadForm = document.querySelector("#lead-form");
 const leadTitle = document.querySelector("#lead-title");
@@ -105,6 +121,13 @@ function showResult() {
   resultTitle.classList.remove("has-official-logo");
   resultLogo.src = content.logo;
   resultCopy.textContent = content.copy;
+  resultSubtitle.textContent = content.subtitle || "Uma afinidade editorial para conhecer Gramado do seu jeito.";
+  resultBenefits.replaceChildren(...(content.benefits || []).map((benefit) => {
+    const item = document.createElement("li");
+    item.textContent = benefit;
+    return item;
+  }));
+  leadTitle.textContent = content.leadTitle || "Fale com a Ownerinc";
   resultLink.hidden = true;
   const destination = destinationUrls[state.result];
   if (destination) {
@@ -189,7 +212,8 @@ document.querySelector("#restart-success").addEventListener("click", restartQuiz
 
 document.querySelector("#show-lead-form").addEventListener("click", () => {
   leadForm.hidden = false;
-  leadTitle.focus();
+  leadForm.scrollIntoView({ block: "start", behavior: "smooth" });
+  leadTitle.focus({ preventScroll: true });
 });
 
 leadForm.addEventListener("submit", async (event) => {

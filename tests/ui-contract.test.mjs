@@ -81,6 +81,21 @@ test("client consumes the established domain and API interfaces", async () => {
   assert.match(app, /submitLead\.disabled = false/);
 });
 
+test("renders approved result content safely and navigates to registration", async () => {
+  const app = await readFile(appUrl, "utf8");
+  assert.equal((app.match(/benefits:\s*\[/g) || []).length, 2);
+  assert.equal((app.match(/leadTitle:/g) || []).length, 2);
+  assert.match(app, /const resultSubtitle = document\.querySelector\("#result-subtitle"\);/);
+  assert.match(app, /const resultBenefits = document\.querySelector\("#result-benefits"\);/);
+  assert.match(app, /resultSubtitle\.textContent = content\.subtitle \|\|/);
+  assert.match(app, /resultBenefits\.replaceChildren\(\.\.\.\(content\.benefits \|\| \[\]\)\.map\(\(benefit\) => \{/);
+  assert.match(app, /const item = document\.createElement\("li"\);[\s\S]*?item\.textContent = benefit;/);
+  assert.doesNotMatch(app, /result(?:Subtitle|Benefits)\.innerHTML/);
+  assert.match(app, /leadTitle\.textContent = content\.leadTitle \|\| "Fale com a Ownerinc";/);
+  assert.match(app, /leadForm\.scrollIntoView\(\{ block: "start", behavior: "smooth" \}\);/);
+  assert.match(app, /leadTitle\.focus\(\{ preventScroll: true \}\);/);
+});
+
 test("uses an interruptible reduced-motion-safe question transition", async () => {
   const [app, styles] = await Promise.all([readFile(appUrl, "utf8"), readFile(stylesUrl, "utf8")]);
   assert.match(app, /questionContent\.classList\.add\("is-changing"\);[\s\S]*?prompt\.textContent = question\.prompt;/);
