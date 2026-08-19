@@ -157,6 +157,23 @@ test("ships stationary result copy and official result assets", async () => {
   assert.match(styles, /\.consent a\s*\{[\s\S]*?min-height: 48px;/);
 });
 
+test("styles the result as a scrollable three-block landing page", async () => {
+  const styles = await readFile(stylesUrl, "utf8");
+  assert.match(styles, /\.result\s*\{[\s\S]*?height:\s*100dvh;[\s\S]*?min-height:\s*100dvh;[\s\S]*?overflow-y:\s*auto;/);
+  assert.match(styles, /\.result__hero\s*\{[\s\S]*?min-height:[\s\S]*?overflow:\s*hidden;/);
+  assert.match(styles, /\.result__hero \.result__media\s*\{[\s\S]*?inset:\s*-4%;/);
+  assert.match(styles, /\.result__subtitle\s*\{[\s\S]*?color:\s*rgb\(255 255 255 \/ 92%\);/);
+  assert.match(styles, /\.result__hero \.button--light\s*\{[\s\S]*?background:\s*#fff;[\s\S]*?color:\s*var\(--ink\);/);
+  assert.match(styles, /\.result__concept\s*\{[\s\S]*?background:\s*var\(--surface-raised\);/);
+  assert.match(styles, /\.result__benefits\s*\{[\s\S]*?border-top:\s*1px solid var\(--bronze\);[\s\S]*?list-style:\s*disc;/);
+  assert.match(styles, /\.result__trust\s*\{[\s\S]*?color:\s*var\(--muted\);/);
+  assert.match(styles, /\.result__registration\s*\{[\s\S]*?padding-bottom:[\s\S]*?env\(safe-area-inset-bottom\)/);
+  assert.match(styles, /\.lead-form\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\);/);
+  assert.match(styles, /\.result__registration \.lead-form\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\);/);
+  assert.match(styles, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.result__media,[\s\S]*?\.result__veil,[\s\S]*?\.result__content/);
+  assert.doesNotMatch(styles, /testimonial|depoimento|avaliações|avaliacoes|urgência|urgencia|escassez|últimas vagas|ultimas vagas|timer/i);
+});
+
 test("keeps the visual system restrained and editorial", async () => {
   const [app, html, styles] = await Promise.all([
     readFile(appUrl, "utf8"),
