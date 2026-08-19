@@ -81,8 +81,9 @@ function renderQuestion({ focus = false } = {}) {
     choice.classList.toggle("is-selected", isSelected);
     labels[index].textContent = option.label;
   });
+  back.hidden = state.questionIndex === 0;
   back.disabled = false;
-  back.textContent = state.questionIndex === 0 ? "Início" : "Voltar";
+  back.textContent = "Voltar";
   continueButton.disabled = !state.responses[question.id];
   continueButton.textContent = state.questionIndex === state.questions.length - 1 ? "Ver meu resultado" : "Continuar";
   questionTransitionFrame = requestAnimationFrame(() => {

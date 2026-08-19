@@ -14,7 +14,8 @@ test("ships one semantic quiz form and one lead form", async () => {
   const html = await readFile(htmlUrl, "utf8");
   assert.match(html, /<main/);
   assert.match(html, /<link rel="icon" href="\/assets\/brand\/ownerinc-icon-white\.png" type="image\/png">/);
-  assert.match(html, /class="eyebrow">Uma leitura editorial Ownerinc<\/p>/);
+  assert.doesNotMatch(html, /Uma leitura editorial(?: Ownerinc)?/);
+  assert.match(html, /<span>Começar<\/span>/);
   assert.match(html, /class="intro__content intro__copy"/);
   assert.match(html, /id="start" class="text-link text-link--button intro__cta" type="button"/);
   assert.match(html, /01 \/ 08/);
