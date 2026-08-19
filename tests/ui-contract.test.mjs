@@ -96,6 +96,13 @@ test("renders approved result content safely and navigates to registration", asy
   assert.match(app, /leadTitle\.focus\(\{ preventScroll: true \}\);/);
 });
 
+test("resets the nested result scroll position between quiz runs", async () => {
+  const app = await readFile(appUrl, "utf8");
+  assert.equal((app.match(/result\.scrollTop = 0;/g) || []).length, 2);
+  assert.match(app, /result\.hidden = false;\s*result\.scrollIntoView[\s\S]*?resultTitle\.focus\(\{ preventScroll: true \}\);\s*result\.scrollTop = 0;/);
+  assert.match(app, /result\.hidden = true;\s*result\.scrollTop = 0;\s*result\.classList\.remove\("is-revealed"\)/);
+});
+
 test("uses an interruptible reduced-motion-safe question transition", async () => {
   const [app, styles] = await Promise.all([readFile(appUrl, "utf8"), readFile(stylesUrl, "utf8")]);
   assert.match(app, /questionContent\.classList\.add\("is-changing"\);[\s\S]*?prompt\.textContent = question\.prompt;/);

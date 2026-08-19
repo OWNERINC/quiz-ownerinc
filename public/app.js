@@ -137,6 +137,7 @@ function showResult() {
   result.hidden = false;
   result.scrollIntoView({ block: "start", behavior: "instant" });
   resultTitle.focus({ preventScroll: true });
+  result.scrollTop = 0;
 }
 
 resultLogo.addEventListener("load", () => {
@@ -192,6 +193,7 @@ function restartQuiz() {
   state.submissionAttempt = createSubmissionAttempt();
   quiz.hidden = true;
   result.hidden = true;
+  result.scrollTop = 0;
   result.classList.remove("is-revealed");
   result.removeAttribute("data-result");
   leadForm.hidden = true;
