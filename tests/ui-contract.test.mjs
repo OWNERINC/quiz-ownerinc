@@ -84,6 +84,8 @@ test("client consumes the established domain and API interfaces", async () => {
 test("renders approved result content safely and navigates to registration", async () => {
   const app = await readFile(appUrl, "utf8");
   assert.equal((app.match(/benefits:\s*\[/g) || []).length, 2);
+  assert.match(app, /const EXPECTED_BENEFIT_COUNT = 3;/);
+  assert.match(app, /content\.benefits\.length !== EXPECTED_BENEFIT_COUNT/);
   assert.equal((app.match(/leadTitle:/g) || []).length, 2);
   assert.match(app, /const resultSubtitle = document\.querySelector\("#result-subtitle"\);/);
   assert.match(app, /const resultBenefits = document\.querySelector\("#result-benefits"\);/);
@@ -92,8 +94,16 @@ test("renders approved result content safely and navigates to registration", asy
   assert.match(app, /const item = document\.createElement\("li"\);[\s\S]*?item\.textContent = benefit;/);
   assert.doesNotMatch(app, /result(?:Subtitle|Benefits)\.innerHTML/);
   assert.match(app, /leadTitle\.textContent = content\.leadTitle \|\| "Fale com a Ownerinc";/);
-  assert.match(app, /leadForm\.scrollIntoView\(\{ block: "start", behavior: "smooth" \}\);/);
+  assert.match(app, /function scrollResultTo\(element\)[\s\S]*?result\.scrollTo\(\{ top: Math\.max\(0, targetTop\), behavior: getScrollBehavior\(\) \}\);/);
+  assert.match(app, /leadForm\.hidden = false;\s*scrollResultTo\(leadForm\);\s*leadTitle\.focus\(\{ preventScroll: true \}\);/);
   assert.match(app, /leadTitle\.focus\(\{ preventScroll: true \}\);/);
+});
+
+test("uses instant scrolling only when reduced motion is requested", async () => {
+  const app = await readFile(appUrl, "utf8");
+  assert.match(app, /function getScrollBehavior\(\)\s*\{\s*return window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches \? "instant" : "smooth";/);
+  assert.match(app, /scrollTo\(\{ top: 0, behavior: getScrollBehavior\(\) \}\);/);
+  assert.match(app, /result\.scrollTo\(\{ top: Math\.max\(0, targetTop\), behavior: getScrollBehavior\(\) \}\);/);
 });
 
 test("resets the nested result scroll position between quiz runs", async () => {

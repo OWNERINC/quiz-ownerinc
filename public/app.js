@@ -27,6 +27,13 @@ const RESULTS = {
     leadTitle: "Fale sobre o Nest Mountain Lodge"
   }
 };
+const EXPECTED_BENEFIT_COUNT = 3;
+
+Object.entries(RESULTS).forEach(([resultKey, content]) => {
+  if (!Array.isArray(content.benefits) || content.benefits.length !== EXPECTED_BENEFIT_COUNT) {
+    throw new Error(`${resultKey} must define exactly ${EXPECTED_BENEFIT_COUNT} benefits.`);
+  }
+});
 
 const state = {
   questionIndex: 0,
@@ -76,6 +83,16 @@ const configStatus = document.querySelector("#config-status");
 const submitLead = document.querySelector("#submit-lead");
 const success = document.querySelector("#success");
 let questionTransitionFrame;
+
+function getScrollBehavior() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
+}
+
+function scrollResultTo(element) {
+  const resultTop = result.getBoundingClientRect().top;
+  const targetTop = element.getBoundingClientRect().top - resultTop + result.scrollTop;
+  result.scrollTo({ top: Math.max(0, targetTop), behavior: getScrollBehavior() });
+}
 
 function renderQuestion({ focus = false } = {}) {
   const question = state.questions[state.questionIndex];
@@ -206,7 +223,7 @@ function restartQuiz() {
   submitLead.disabled = !configReady;
   submitLead.textContent = configReady ? "Enviar meus dados" : "Carregando…";
   document.querySelector("#intro-title").focus();
-  scrollTo({ top: 0, behavior: "smooth" });
+  scrollTo({ top: 0, behavior: getScrollBehavior() });
 }
 
 document.querySelector("#restart-result").addEventListener("click", restartQuiz);
@@ -214,7 +231,7 @@ document.querySelector("#restart-success").addEventListener("click", restartQuiz
 
 document.querySelector("#show-lead-form").addEventListener("click", () => {
   leadForm.hidden = false;
-  leadForm.scrollIntoView({ block: "start", behavior: "smooth" });
+  scrollResultTo(leadForm);
   leadTitle.focus({ preventScroll: true });
 });
 
