@@ -175,8 +175,11 @@ test("styles the result as a scrollable three-block landing page", async () => {
   assert.match(styles, /\.result__benefits\s*\{[\s\S]*?border-top:\s*1px solid var\(--bronze\);[\s\S]*?list-style:\s*disc;/);
   assert.match(styles, /\.result__trust\s*\{[\s\S]*?color:\s*var\(--muted\);/);
   assert.match(styles, /\.result__registration\s*\{[\s\S]*?padding-bottom:[\s\S]*?env\(safe-area-inset-bottom\)/);
+  assert.match(styles, /\.result__registration\s*\{[\s\S]*?min-width:\s*0;/);
+  assert.match(styles, /\.lead-form__header\s*\{[\s\S]*?min-width:\s*0;/);
   assert.match(styles, /\.lead-form\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\);/);
   assert.match(styles, /\.result__registration \.lead-form\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\);/);
+  assert.match(styles, /@media \(min-width: 48rem\)[\s\S]*?\.result\s*\{[\s\S]*?grid-template-columns:\s*minmax\(0, 1\.15fr\) minmax\(0, \.85fr\);/);
   assert.match(styles, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.result__media,[\s\S]*?\.result__veil,[\s\S]*?\.result__content/);
   assert.doesNotMatch(styles, /testimonial|depoimento|avaliações|avaliacoes|urgência|urgencia|escassez|últimas vagas|ultimas vagas|timer/i);
 });
