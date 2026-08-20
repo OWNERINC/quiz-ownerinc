@@ -6,6 +6,7 @@ const htmlUrl = new URL("../public/index.html", import.meta.url);
 const appUrl = new URL("../public/app.js", import.meta.url);
 const stylesUrl = new URL("../public/styles.css", import.meta.url);
 const vercelUrl = new URL("../vercel.json", import.meta.url);
+const packageUrl = new URL("../package.json", import.meta.url);
 
 const officialGalleryUrls = [
   "https://owntime.com.br/wp-content/uploads/2023/06/Imagem-do-WhatsApp-de-2023-06-29-as-14.39.24.jpg",
@@ -39,7 +40,7 @@ test("defines exactly three result screens with a visible third-screen form", as
   assert.match(html, /class="result-screen result-screen--product"/);
   assert.match(html, /class="result-screen result-screen--lead"[\s\S]*<form id="lead-form" class="lead-form" aria-labelledby="lead-title">/);
   assert.doesNotMatch(html, /<form id="lead-form"[^>]+hidden/);
-  assert.match(html, /id="result-gallery"[^>]+aria-label="Fotos oficiais do empreendimento"/);
+  assert.match(html, /id="result-gallery"[^>]+role="region"[^>]+aria-roledescription="carousel"[^>]+aria-label="Fotos oficiais do empreendimento"[^>]+tabindex="0"/);
   assert.match(html, /<span>Falar com atendente<\/span>/);
   assert.match(html, /01 \/ 03/);
   assert.match(html, /02 \/ 03/);
@@ -59,15 +60,34 @@ test("keeps two results with exactly three benefits and the official galleries",
 
 test("renders gallery nodes safely and scrolls the normal document to the form", async () => {
   const app = await readFile(appUrl, "utf8");
-  assert.match(app, /resultGallery\.replaceChildren\(\.\.\.\(content\.gallery \|\| \[\]\)\.map/);
+  assert.match(app, /function renderResultGallery\(items\)/);
+  assert.match(app, /resultGallery\.replaceChildren\(viewport, previous, next, indicators, announcement\)/);
   assert.match(app, /document\.createElement\("figure"\)/);
   assert.match(app, /document\.createElement\("img"\)/);
+  assert.match(app, /document\.createElement\("button"\)/);
   assert.match(app, /image\.src = src;/);
   assert.match(app, /image\.alt = alt;/);
-  assert.match(app, /caption\.textContent = "Foto oficial";/);
+  assert.match(app, /caption\.textContent = `Foto oficial/);
   assert.doesNotMatch(app, /resultGallery\.innerHTML|resultGallery\.insertAdjacentHTML/);
   assert.match(app, /resultLeadScreen\.scrollIntoView\(\{ block: "start", behavior: getScrollBehavior\(\) \}\)/);
   assert.doesNotMatch(app, /result\.scrollTop|result\.scrollTo|scrollResultTo/);
+});
+
+test("exposes functional carousel controls and slide accessibility state", async () => {
+  const app = await readFile(appUrl, "utf8");
+  assert.match(app, /aria-roledescription", "slide"/);
+  assert.match(app, /setAttribute\("aria-hidden", "true"\)/);
+  assert.match(app, /setAttribute\("aria-live", "polite"\)/);
+  assert.match(app, /className = "carousel__control carousel__control--previous"/);
+  assert.match(app, /className = "carousel__control carousel__control--next"/);
+  assert.match(app, /className = "carousel__indicator"/);
+  assert.match(app, /addEventListener\("keydown", handleGalleryKeydown\)/);
+  assert.match(app, /addEventListener\("pointerdown", handleGalleryPointerDown\)/);
+  assert.match(app, /addEventListener\("pointermove", handleGalleryPointerMove\)/);
+  assert.match(app, /ArrowRight/);
+  assert.match(app, /ArrowLeft/);
+  assert.match(app, /wrapGalleryIndex/);
+  assert.doesNotMatch(app, /setInterval\(/);
 });
 
 test("uses document-flow result screens and preserves reduced-motion rules", async () => {
@@ -76,12 +96,25 @@ test("uses document-flow result screens and preserves reduced-motion rules", asy
   assert.match(styles, /\.result\s*\{[\s\S]*?background:\s*var\(--surface\);/);
   assert.match(styles, /\.result-screen\s*\{[\s\S]*?min-height:\s*100dvh;[\s\S]*?padding:/);
   assert.match(styles, /\.result-screen--hero\s*\{[\s\S]*?overflow:\s*hidden;/);
-  assert.match(styles, /\.result__gallery\s*\{[\s\S]*?grid-template-columns:\s*repeat\(3/);
+  assert.match(styles, /\.result__gallery\s*\{[\s\S]*?perspective:\s*1100px;[\s\S]*?touch-action:\s*pan-y;/);
+  assert.match(styles, /\.carousel__slide\.is-active[\s\S]*?translate3d\(-50%, 0, 48px\)/);
+  assert.match(styles, /\.carousel__slide\.is-previous[\s\S]*?rotateY\(18deg\)[\s\S]*?scale\(\.76\)/);
+  assert.match(styles, /\.carousel__slide\.is-next[\s\S]*?rotateY\(-18deg\)[\s\S]*?scale\(\.76\)/);
+  assert.match(styles, /\.carousel__control[\s\S]*?min-width:\s*48px;[\s\S]*?min-height:\s*48px;/);
+  assert.match(styles, /\.carousel__indicator\s*\{[\s\S]*?min-width:\s*44px;[\s\S]*?min-height:\s*44px;/);
+  assert.match(styles, /\.carousel__slide\s*\{[\s\S]*?transition:/);
   assert.doesNotMatch(styles, /\.result\s*\{[^}]*height:\s*100dvh/);
   assert.doesNotMatch(styles, /\.result\s*\{[^}]*overflow-y:\s*auto/);
   assert.doesNotMatch(styles, /\.result__hero|\.result__concept/);
   assert.match(styles, /@media \(min-width: 48rem\)[\s\S]*?\.result-screen--product/);
   assert.match(styles, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?transition: none !important;[\s\S]*?animation: none !important;/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.carousel__slide\s*\{[\s\S]*?transition: none !important;/);
+});
+
+test("does not add a runtime dependency for the vanilla carousel", async () => {
+  const packageJson = JSON.parse(await readFile(packageUrl, "utf8"));
+  assert.equal(packageJson.dependencies, undefined);
+  assert.equal(packageJson.devDependencies, undefined);
 });
 
 test("allows only the two official gallery hosts in both CSPs", async () => {

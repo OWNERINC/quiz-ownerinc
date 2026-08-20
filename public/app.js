@@ -70,6 +70,14 @@ const state = {
   result: null,
   submissionAttempt: createSubmissionAttempt()
 };
+const galleryState = {
+  activeIndex: 0,
+  items: [],
+  slides: [],
+  announcement: null,
+  pointer: null,
+  suppressClick: false
+};
 const utmMap = {
   utm_source: "source",
   utm_medium: "medium",
@@ -150,6 +158,186 @@ function renderQuestion({ focus = false } = {}) {
   if (focus) prompt.focus();
 }
 
+function wrapGalleryIndex(index) {
+  const length = galleryState.items.length;
+  return length ? (index + length) % length : 0;
+}
+
+function galleryOffset(index) {
+  const length = galleryState.items.length;
+  let offset = (index - galleryState.activeIndex + length) % length;
+  if (offset > length / 2) offset -= length;
+  return offset;
+}
+
+function updateGallery() {
+  galleryState.slides.forEach((slide, index) => {
+    const offset = galleryOffset(index);
+    const isActive = offset === 0;
+    slide.classList.toggle("is-active", isActive);
+    slide.classList.toggle("is-previous", offset === -1);
+    slide.classList.toggle("is-next", offset === 1);
+    slide.classList.toggle("is-hidden", Math.abs(offset) > 1);
+    if (isActive) {
+      slide.removeAttribute("aria-hidden");
+    } else {
+      slide.setAttribute("aria-hidden", "true");
+    }
+    slide.querySelector("button").tabIndex = isActive ? 0 : -1;
+  });
+
+  resultGallery.querySelectorAll(".carousel__indicator").forEach((indicator, index) => {
+    if (index === galleryState.activeIndex) {
+      indicator.setAttribute("aria-current", "true");
+    } else {
+      indicator.removeAttribute("aria-current");
+    }
+  });
+
+  if (galleryState.announcement) {
+    const { alt } = galleryState.items[galleryState.activeIndex];
+    galleryState.announcement.textContent = `Foto ${galleryState.activeIndex + 1} de ${galleryState.items.length}: ${alt}`;
+  }
+}
+
+function setGallerySlide(index, { focus = false } = {}) {
+  if (!galleryState.items.length) return;
+  galleryState.activeIndex = wrapGalleryIndex(index);
+  updateGallery();
+  if (focus) galleryState.slides[galleryState.activeIndex].querySelector("button").focus({ preventScroll: true });
+}
+
+function moveGallery(direction, options) {
+  setGallerySlide(galleryState.activeIndex + direction, options);
+}
+
+function renderResultGallery(items) {
+  galleryState.items = items;
+  galleryState.activeIndex = 0;
+
+  const viewport = document.createElement("div");
+  viewport.className = "carousel__viewport";
+  const track = document.createElement("div");
+  track.className = "carousel__track";
+  galleryState.slides = items.map(({ src, alt }, index) => {
+    const figure = document.createElement("figure");
+    const card = document.createElement("button");
+    const image = document.createElement("img");
+    const caption = document.createElement("figcaption");
+
+    figure.className = "carousel__slide";
+    figure.id = `result-gallery-slide-${index + 1}`;
+    figure.dataset.index = String(index);
+    figure.setAttribute("role", "group");
+    figure.setAttribute("aria-roledescription", "slide");
+    figure.setAttribute("aria-label", `Foto ${index + 1} de ${items.length}: ${alt}`);
+    card.className = "carousel__card";
+    card.type = "button";
+    card.setAttribute("aria-label", `Focar na foto ${index + 1} de ${items.length}: ${alt}`);
+    image.src = src;
+    image.alt = alt;
+    image.loading = index === 0 ? "eager" : "lazy";
+    image.decoding = "async";
+    caption.textContent = `Foto oficial ${index + 1} de ${items.length}`;
+    card.append(image, caption);
+    figure.append(card);
+    track.append(figure);
+    return figure;
+  });
+  viewport.append(track);
+
+  const previous = document.createElement("button");
+  previous.className = "carousel__control carousel__control--previous";
+  previous.type = "button";
+  previous.setAttribute("aria-label", "Foto anterior");
+  previous.textContent = "Anterior";
+  previous.addEventListener("click", () => moveGallery(-1));
+
+  const next = document.createElement("button");
+  next.className = "carousel__control carousel__control--next";
+  next.type = "button";
+  next.setAttribute("aria-label", "Próxima foto");
+  next.textContent = "Próxima";
+  next.addEventListener("click", () => moveGallery(1));
+
+  const indicators = document.createElement("div");
+  indicators.className = "carousel__indicators";
+  indicators.setAttribute("role", "group");
+  indicators.setAttribute("aria-label", "Selecionar foto");
+  items.forEach(({ alt }, index) => {
+    const indicator = document.createElement("button");
+    indicator.className = "carousel__indicator";
+    indicator.type = "button";
+    indicator.setAttribute("aria-label", `Ver foto ${index + 1} de ${items.length}: ${alt}`);
+    indicator.setAttribute("aria-controls", `result-gallery-slide-${index + 1}`);
+    indicator.textContent = String(index + 1).padStart(2, "0");
+    indicator.addEventListener("click", () => setGallerySlide(index));
+    indicators.append(indicator);
+  });
+
+  const announcement = document.createElement("span");
+  announcement.className = "visually-hidden";
+  announcement.setAttribute("aria-live", "polite");
+  announcement.setAttribute("aria-atomic", "true");
+  galleryState.announcement = announcement;
+  resultGallery.replaceChildren(viewport, previous, next, indicators, announcement);
+  updateGallery();
+
+  viewport.addEventListener("click", (event) => {
+    const card = event.target.closest(".carousel__card");
+    if (!card) return;
+    if (galleryState.suppressClick) {
+      event.preventDefault();
+      galleryState.suppressClick = false;
+      return;
+    }
+    const slide = card.closest(".carousel__slide");
+    setGallerySlide(Number(slide.dataset.index), { focus: true });
+  });
+}
+
+function handleGalleryKeydown(event) {
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+  event.preventDefault();
+  const cardIsFocused = event.target.closest?.(".carousel__card") === event.target;
+  moveGallery(event.key === "ArrowRight" ? 1 : -1, { focus: cardIsFocused });
+}
+
+function handleGalleryPointerDown(event) {
+  if (!event.isPrimary || event.button !== 0 || !event.target.closest(".carousel__viewport")) return;
+  galleryState.suppressClick = false;
+  galleryState.pointer = { id: event.pointerId, startX: event.clientX, startY: event.clientY, deltaX: 0, moved: false };
+}
+
+function handleGalleryPointerMove(event) {
+  const pointer = galleryState.pointer;
+  if (!pointer || pointer.id !== event.pointerId) return;
+  pointer.deltaX = event.clientX - pointer.startX;
+  const deltaY = event.clientY - pointer.startY;
+  if (!pointer.moved && Math.abs(pointer.deltaX) > 8 && Math.abs(pointer.deltaX) > Math.abs(deltaY)) pointer.moved = true;
+  if (pointer.moved) {
+    event.preventDefault();
+    resultGallery.classList.add("is-dragging");
+  }
+}
+
+function handleGalleryPointerUp(event) {
+  const pointer = galleryState.pointer;
+  if (!pointer || (event.type !== "pointercancel" && pointer.id !== event.pointerId)) return;
+  if (pointer.moved) {
+    if (Math.abs(pointer.deltaX) >= 32) moveGallery(pointer.deltaX < 0 ? 1 : -1);
+    galleryState.suppressClick = true;
+  }
+  galleryState.pointer = null;
+  resultGallery.classList.remove("is-dragging");
+}
+
+resultGallery.addEventListener("keydown", handleGalleryKeydown);
+resultGallery.addEventListener("pointerdown", handleGalleryPointerDown);
+resultGallery.addEventListener("pointermove", handleGalleryPointerMove);
+resultGallery.addEventListener("pointerup", handleGalleryPointerUp);
+resultGallery.addEventListener("pointercancel", handleGalleryPointerUp);
+
 function showResult() {
   quiz.hidden = true;
   const affinityAnswers = AFFINITY_QUESTIONS.map(({ id }) => state.responses[id]);
@@ -168,18 +356,7 @@ function showResult() {
     item.textContent = benefit;
     return item;
   }));
-  resultGallery.replaceChildren(...(content.gallery || []).map(({ src, alt }) => {
-    const figure = document.createElement("figure");
-    const image = document.createElement("img");
-    const caption = document.createElement("figcaption");
-    image.src = src;
-    image.alt = alt;
-    image.loading = "lazy";
-    image.decoding = "async";
-    caption.textContent = "Foto oficial";
-    figure.append(image, caption);
-    return figure;
-  }));
+  renderResultGallery(content.gallery || []);
   leadTitle.textContent = content.leadTitle || "Fale com a Ownerinc";
   resultLink.hidden = true;
   const destination = destinationUrls[state.result];
