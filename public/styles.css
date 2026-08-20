@@ -409,6 +409,11 @@ h1 em {
   color: var(--ink);
 }
 
+.quiz__actions #back[aria-hidden="true"] {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .result {
   --result-hero: none;
   background: var(--surface);
@@ -429,16 +434,6 @@ h1 em {
   min-height: 100dvh;
   align-content: center;
   padding: max(1.5rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
-}
-
-.result__screen-index {
-  position: absolute;
-  right: max(1rem, env(safe-area-inset-right));
-  bottom: max(1rem, env(safe-area-inset-bottom));
-  margin: 0;
-  color: currentColor;
-  font-size: .8rem;
-  letter-spacing: .1em;
 }
 
 .result-screen--hero {

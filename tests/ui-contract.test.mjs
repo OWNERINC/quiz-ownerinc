@@ -42,9 +42,7 @@ test("defines exactly three result screens with a visible third-screen form", as
   assert.doesNotMatch(html, /<form id="lead-form"[^>]+hidden/);
   assert.match(html, /id="result-gallery"[^>]+role="region"[^>]+aria-roledescription="carousel"[^>]+aria-label="Fotos oficiais do empreendimento"[^>]+tabindex="0"/);
   assert.match(html, /<span>Falar com atendente<\/span>/);
-  assert.match(html, /01 \/ 03/);
-  assert.match(html, /02 \/ 03/);
-  assert.match(html, /03 \/ 03/);
+  assert.doesNotMatch(html, /intro__edition|result__screen-index|01 \/ 08|01 \/ 03|02 \/ 03|03 \/ 03/);
 });
 
 test("keeps two results with exactly three benefits and the official galleries", async () => {
@@ -71,6 +69,13 @@ test("renders gallery nodes safely and scrolls the normal document to the form",
   assert.doesNotMatch(app, /resultGallery\.innerHTML|resultGallery\.insertAdjacentHTML/);
   assert.match(app, /resultLeadScreen\.scrollIntoView\(\{ block: "start", behavior: getScrollBehavior\(\) \}\)/);
   assert.doesNotMatch(app, /result\.scrollTop|result\.scrollTo|scrollResultTo/);
+});
+
+test("keeps quiz navigation slots stable across the first question", async () => {
+  const app = await readFile(appUrl, "utf8");
+  assert.match(app, /back\.hidden = false/);
+  assert.match(app, /back\.setAttribute\("aria-hidden", String\(isFirstQuestion\)\)/);
+  assert.match(app, /back\.tabIndex = isFirstQuestion \? -1 : 0/);
 });
 
 test("exposes functional carousel controls and slide accessibility state", async () => {

@@ -146,8 +146,11 @@ function renderQuestion({ focus = false } = {}) {
     choice.classList.toggle("is-selected", isSelected);
     labels[index].textContent = option.label;
   });
-  back.hidden = state.questionIndex === 0;
-  back.disabled = false;
+  const isFirstQuestion = state.questionIndex === 0;
+  back.hidden = false;
+  back.disabled = isFirstQuestion;
+  back.setAttribute("aria-hidden", String(isFirstQuestion));
+  back.tabIndex = isFirstQuestion ? -1 : 0;
   back.textContent = "Voltar";
   continueButton.disabled = !state.responses[question.id];
   continueButton.textContent = state.questionIndex === state.questions.length - 1 ? "Ver meu resultado" : "Continuar";
