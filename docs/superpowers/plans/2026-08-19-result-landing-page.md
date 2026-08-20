@@ -2,205 +2,150 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Turn the result stage into a compact three-block landing page with dynamic property value copy, official imagery, benefits, and inline lead capture.
+**Goal:** Rebuild the result journey as exactly three mobile-first, document-scrolling screens with official property galleries and the existing lead capture contract.
 
-**Architecture:** Keep the quiz state, stable question ids, `client-submission.js`, server validation, webhook envelope, and rate limits unchanged. Expand the existing result DOM and `RESULTS` data in place, then use localized CSS for a scrollable result page and a small scroll-to-form interaction.
+**Architecture:** Keep quiz classification, result data safety, lead form identifiers, client submission module, server handler, rate limiter, and 202 behavior unchanged. Replace the nested result scroller with three normal-flow result screens. Render static gallery URLs through DOM nodes and permit only the two official hosts in both CSPs.
 
-**Tech Stack:** Static HTML, CSS, vanilla ES modules, Node.js test runner, Playwright smoke checks.
+**Tech Stack:** Static HTML, vanilla ES modules, CSS, Node.js test runner, optional Playwright smoke checks, existing Vercel project.
 
 ## Global Constraints
 
-- Preserve the existing webhook payload, server-side classification, rate limiting, and 202 acceptance contract.
-- Use only the existing official result images and official logos.
-- Keep Ownerinc as the neutral brand mediator and use property-specific copy only for the calculated result.
-- Do not add invented testimonials, downloads, urgency timers, scarcity, or unsupported numbers.
-- Mobile-first at 320px, 390px, and 463px; desktop composition at 768px and 1366px.
-- Keep visible labels, keyboard focus, reduced motion, and 44px touch targets.
+- Exactly three result screens: hero + benefits, product + gallery + trust, CTA + visible lead form.
+- Each result screen uses `min-height: 100dvh`; `#result` has `height: auto` and `overflow: visible`.
+- Keep approved subtitle, concept, and benefit copy as the editorial base; each result has exactly three benefits.
+- Use the existing local official logos and hero images.
+- Use only the six supplied official gallery URLs, selected from static result data.
+- Never use user HTML for gallery rendering; use DOM nodes and `textContent`.
+- Preserve stable classification, field ids/names, webhook, rate limiter, submission module, and HTTP 202 behavior.
+- CSP `img-src` allows only `'self' data: https://owntime.com.br https://nestgramado.com.br`.
+- No new dependency, fake testimonial, urgency, scarcity, counter, financial claim, or real lead.
 
 ---
 
-### Task 1: Build the result landing structure
+### Task 1: Update static result structure and contract assertions
 
 **Files:**
-- Modify: `public/index.html:69-129`
-- Test: `tests/ui-contract.test.mjs:36-120`
+- Modify: `public/index.html`
+- Modify: `tests/ui-contract.test.mjs`
 
 **Interfaces:**
-- Consumes: existing result ids, lead form ids, `data-config` hook, and result asset paths.
-- Produces: hero, concept, trust, benefits, and registration blocks while preserving all existing ids.
+- Consumes: existing result ids and form markup.
+- Produces: three result screens with the existing lead form visible in screen 3.
 
-- [ ] **Step 1: Add the three result blocks**
+- [ ] **Step 1: Make the result markup exactly three screens**
 
-Keep `#result`, `#result-title`, `#result-logo`, `#result-wordmark`, `#result-copy`,
-`#result-link`, `#show-lead-form`, `#restart-result`, and `#lead-form`. Add
-`#result-subtitle`, `#result-benefits`, `#result-trust`, and a `result__registration`
-wrapper. Move the existing lead form inside the result section so the form is
-part of the landing page, without changing its field ids or names.
+Keep `#result`, `#result-title`, `#result-logo`, `#result-wordmark`, `#result-subtitle`, `#result-copy`, `#result-benefits`, `#result-trust`, `#show-lead-form`, `#result-link`, `#restart-result`, and every lead form id/name. Put the result title, subtitle, benefits, and hero CTA only in `.result-screen--hero`; put concept, gallery mount, trust copy, product link, and restart only in `.result-screen--product`; put the existing `#lead-form` visibly inside `.result-screen--lead` with no `hidden` attribute. Keep `#success` outside the result screens.
 
-- [ ] **Step 2: Update visible conversion copy**
+- [ ] **Step 2: Add the gallery mount**
 
-Change the primary result CTA text to `Falar com atendente`. Change the lead
-submit button text to `Enviar meus dados` only where it already exists; do not
-change its async status labels. Keep the existing neutral disclaimer and
-official-property link.
+Add `<div id="result-gallery" class="result__gallery" aria-label="Fotos oficiais do empreendimento"></div>` in the product screen. Do not add image HTML containing URLs; JavaScript will create the static image nodes.
 
-- [ ] **Step 3: Add contract assertions**
+- [ ] **Step 3: Add assertions before implementation changes**
 
-Assert the new subtitle, benefits list, trust marker, registration wrapper, CTA
-text, and all existing semantic form fields. Assert that unsupported social proof
-and urgency elements are absent.
+Assert that `#result` contains exactly three `.result-screen` elements, the lead form is in the third screen and not hidden, the gallery mount exists, the CTA text is present, and the existing form fields, consent, status, and success markup remain.
 
-- [ ] **Step 4: Run focused UI tests**
+- [ ] **Step 4: Run the focused contract test**
 
 Run: `node --test tests/ui-contract.test.mjs`
 
-Expected: all UI contract tests pass.
+Expected: the new assertions fail only for the not-yet-implemented structure.
 
-- [ ] **Step 5: Commit**
-
-```sh
-git add public/index.html tests/ui-contract.test.mjs
-git commit -m "feat(quiz): structure result landing page"
-```
-
-### Task 2: Add dynamic offer content and form navigation
+### Task 2: Add static gallery data and safe rendering
 
 **Files:**
-- Modify: `public/app.js:3-18,89-118,190-245`
-- Test: `tests/ui-contract.test.mjs:48-88`
+- Modify: `public/app.js`
+- Modify: `tests/ui-contract.test.mjs`
 
 **Interfaces:**
-- Consumes: `RESULTS`, `state.result`, existing lead form submit flow, and new result ids.
-- Produces: safe per-result subtitle and benefits rendering plus CTA scroll behavior.
+- Consumes: `RESULTS[state.result]` and existing result rendering.
+- Produces: result-specific description and three DOM-created gallery images.
 
-- [ ] **Step 1: Extend the result catalog**
+- [ ] **Step 1: Extend each result entry**
 
-Add `subtitle` and exactly three `benefits` strings to each `RESULTS` entry.
-Use approved, non-financial language: Owntime emphasizes time, family,
-nature, space, and hospitality; Nest emphasizes mountain refuge, sensory
-comfort, wellness, organic architecture, and convenience.
+Add a concise `concept` string and exactly three `gallery` URL strings using the URLs from the request. Keep the current approved `subtitle`, `copy`, and `benefits` text unchanged.
 
-- [ ] **Step 2: Render dynamic result content safely**
+- [ ] **Step 2: Render the gallery without HTML injection**
 
-Add DOM references for `#result-subtitle` and `#result-benefits`. In
-`showResult`, set the subtitle and replace the list contents with text nodes or
-`li` elements created from the static catalog. Do not inject user input into
-HTML.
+Query `#result-gallery`. In `showResult`, clear it with `replaceChildren()`, then for each static URL create an `<figure>`, `<img>`, and `<figcaption>` with `src`, `alt`, and caption set as properties or `textContent`; append the nodes. Set `resultCopy.textContent = content.concept` or retain the existing approved copy as the product description. Do not use `innerHTML` for gallery content.
 
-- [ ] **Step 3: Scroll the hero CTA to registration**
+- [ ] **Step 3: Make the hero CTA scroll the normal document**
 
-When `#show-lead-form` is clicked, unhide the form, scroll it into view with
-`behavior: "smooth"`, and focus `#lead-title`. Preserve the existing config
-gate, submission payload, error handling, success state, and restart reset.
+Replace `scrollResultTo` and all `result.scrollTop`/`result.scrollTo` use with `leadScreen.scrollIntoView({ block: "start", behavior: getScrollBehavior() })`. Keep focus transfer to `leadTitle`, the reduced-motion behavior, and form visibility. The form must already be visible in the third screen; the CTA may only scroll and focus.
 
-- [ ] **Step 4: Add dynamic lead heading**
+- [ ] **Step 4: Add data and safety assertions**
 
-Set the form heading or supporting text from the selected result using static
-catalog content, while retaining a safe fallback and the existing consent copy.
+Assert two `gallery` arrays with three HTTPS URLs, all six exact official URLs, static DOM creation via `createElement`, `textContent`, and absence of `innerHTML`/`insertAdjacentHTML`. Assert no nested result scroll APIs remain.
 
-- [ ] **Step 5: Run tests**
+- [ ] **Step 5: Run focused client tests**
 
 Run: `node --test tests/quiz.test.mjs tests/ui-contract.test.mjs tests/ownerinc-handler.test.mjs`
 
-Expected: all selected tests pass.
+Expected: all pass after the markup and client changes are complete.
 
-- [ ] **Step 6: Commit**
-
-```sh
-git add public/app.js tests/ui-contract.test.mjs
-git commit -m "feat(quiz): personalize result offer content"
-```
-
-### Task 3: Style the three-block result landing page
+### Task 3: Style the three screens and CSP
 
 **Files:**
-- Modify: `public/styles.css:91-100,414-730,760-930`
-- Test: `tests/ui-contract.test.mjs:89-160`
+- Modify: `public/styles.css`
+- Modify: `server.mjs`
+- Modify: `vercel.json`
+- Modify: `tests/ui-contract.test.mjs`
+- Modify: `tests/server.test.mjs` or the existing CSP contract test file
 
 **Interfaces:**
-- Consumes: result block classes and dynamic content ids from Tasks 1-2, existing official hero variables, and existing form controls.
-- Produces: mobile-first hero, concept, trust and registration layouts with desktop side-by-side form treatment.
+- Consumes: `.result-screen--hero`, `.result-screen--product`, `.result-screen--lead`, gallery nodes, and existing form controls.
+- Produces: mobile-first normal document layout and desktop composition at `min-width: 48rem`.
 
-- [ ] **Step 1: Make the result stage scrollable**
+- [ ] **Step 1: Remove the nested result scroller**
 
-Override the fixed-height/hidden overflow rules for `.result` and its inner
-blocks. Keep intro and quiz viewport behavior unchanged. Ensure the document
-can scroll when result or registration is visible, with safe-area padding.
+Override result layout to `height: auto`, `min-height: 0`, `overflow: visible`, and use normal document flow. Set each `.result-screen` to `min-height: 100dvh`; keep horizontal clipping only where needed without establishing a vertical scroll container.
 
-- [ ] **Step 2: Style the hero**
+- [ ] **Step 2: Style mobile screens**
 
-Use the existing official image as a cover background behind a veil. Give the
-hero a readable title, subtitle, and high-contrast `Falar com atendente` CTA.
-Keep image meaning decorative and preserve the official result logo fallback.
+Use the official hero background only in screen 1, preserve logo fallback, show exactly three benefits, make the product screen contain concise copy plus a three-image grid, and make screen 3 show the existing form without requiring a reveal state. Use safe-area padding and preserve 44px controls.
 
-- [ ] **Step 3: Style concept and benefits**
+- [ ] **Step 3: Add desktop composition**
 
-Use a light raised surface, short line lengths, bronze dividers, and a list with
-visible bullets. Make the trust block quieter than the value copy. Do not add
-cards-inside-cards or decorative counters.
+At `min-width: 48rem`, use an asymmetric grid for hero content and product gallery, with the form as a readable third screen rather than a nested panel. Avoid extra result screens or decorative counters.
 
-- [ ] **Step 4: Style registration**
+- [ ] **Step 4: Add strict CSP hosts**
 
-Make the form a clear conversion panel. On mobile it follows the concept block;
-on desktop it aligns beside the content where space permits. Keep field labels,
-error messages, consent, and disabled/loading states accessible and at least
-44px tall for interactive controls.
+Change both CSP values so `img-src` is exactly `'self' data: https://owntime.com.br https://nestgramado.com.br` in addition to the existing directives. Do not permit wildcard hosts.
 
-- [ ] **Step 5: Add responsive and reduced-motion rules**
+- [ ] **Step 5: Update style and CSP assertions**
 
-Verify 320px, 390px, 463px, 768px, and 1366px. Keep the result under roughly
-three viewport heights on common mobile screens without clipping fields. Use
-opacity/transform only for transitions and preserve the existing reduced-motion
-override.
+Assert result document overflow, three `100dvh` screens, gallery layout, reduced-motion rules, both CSP hosts, and absence of old nested scroller declarations.
 
-- [ ] **Step 6: Update UI contract checks**
+- [ ] **Step 6: Run focused tests**
 
-Assert scrollable result rules, hero cover behavior, benefits styling, form panel
-layout, and no unsupported social-proof/urgency components.
+Run: `node --test tests/ui-contract.test.mjs tests/server.test.mjs tests/vercel-leads.test.mjs`
 
-- [ ] **Step 7: Run focused tests**
+Expected: all pass.
 
-Run: `node --test tests/ui-contract.test.mjs`
-
-Expected: all UI contract tests pass.
-
-- [ ] **Step 8: Commit**
-
-```sh
-git add public/styles.css tests/ui-contract.test.mjs
-git commit -m "style(quiz): turn result into landing page"
-```
-
-### Task 4: Verify, deploy, and publish
+### Task 4: Full verification, smoke, commit, push, and deploy
 
 **Files:**
-- Test: `tests/*.test.mjs`
-- Verify: `https://lptijolo.vercel.app`
+- Verify: all modified files and the linked Vercel project
 
 **Interfaces:**
-- Consumes: completed result landing page and unchanged capture path.
-- Produces: published, smoke-tested result landing page with no real lead sent.
+- Consumes: completed three-screen result page and unchanged capture path.
+- Produces: committed and pushed release, deployed URL, and smoke evidence without a real lead.
 
-- [ ] **Step 1: Run the full tests**
+- [ ] **Step 1: Run project checks**
 
-Run: `npm test`
+Run: `npm run verify` and the focused test commands. Do not post to `/api/leads` with a real contact; synthetic intercepted responses may return 503 and 202 only.
 
-Expected: all tests pass, except the known Windows temporary symlink `EPERM`
-limitation if the environment still lacks symlink capability.
+- [ ] **Step 2: Run Playwright smoke**
 
-- [ ] **Step 2: Smoke-test the full result flow**
+At `390x844` and `1366x768`, run both deterministic result paths, assert exactly three result screens, gallery images, CTA/form visibility, synthetic lead responses, no horizontal/vertical overflow beyond the normal document, no console errors, and reduced-motion behavior. Inspect both Owntime and Nest.
 
-At `320x568`, `390x844`, `463x968`, `768x1024`, and `1366x768`, complete the
-quiz and verify hero, subtitle, image, three benefits, trust block, CTA scroll,
-all form fields, validation error, success state, back navigation, no overflow,
-and no console errors. Use synthetic 503/202 responses; never send a real lead.
+- [ ] **Step 3: Inspect diff and commit**
 
-- [ ] **Step 3: Push and deploy**
+Run `git diff --check`, `git status --short`, then commit only intended files with `git commit -m "feat(quiz): redesign result into three screens"`.
 
-Push the project-root branch to `quiz-ownerinc/main`, deploy the linked Vercel
-project, and confirm the alias remains `https://lptijolo.vercel.app`.
+- [ ] **Step 4: Push and deploy**
 
-- [ ] **Step 4: Smoke-test production**
+Push the current branch to `quiz-ownerinc/main` without rewriting history. Deploy the linked Vercel project using its existing project configuration and record the resulting deployment and production URLs.
 
-Repeat the result landing checks against the live alias and confirm
-`/api/config` and `/client-submission.js` remain available.
+- [ ] **Step 5: Smoke production**
+
+Repeat the read-only result/gallery/form checks against the deployed URL. Never submit a real lead. Report commit, test commands/results, deployment URLs, and any remaining concern.

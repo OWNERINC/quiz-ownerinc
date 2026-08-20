@@ -12,6 +12,20 @@ const RESULTS = {
       "Conexão com a natureza e o ritmo de Gramado.",
       "Hospitalidade para tornar cada estadia mais leve."
     ],
+    gallery: [
+      {
+        src: "https://owntime.com.br/wp-content/uploads/2023/06/Imagem-do-WhatsApp-de-2023-06-29-as-14.39.24.jpg",
+        alt: "Ambiente do Owntime"
+      },
+      {
+        src: "https://owntime.com.br/wp-content/uploads/2023/06/1-1.jpg",
+        alt: "Espaço do Owntime"
+      },
+      {
+        src: "https://owntime.com.br/wp-content/uploads/2023/06/2.jpg",
+        alt: "Detalhe do Owntime"
+      }
+    ],
     leadTitle: "Fale sobre o Owntime"
   },
   nest: {
@@ -23,6 +37,20 @@ const RESULTS = {
       "Arquitetura orgânica integrada à paisagem.",
       "Conforto sensorial para momentos de descanso e bem-estar.",
       "Praticidade para aproveitar uma experiência de Mountain Lodge em Gramado."
+    ],
+    gallery: [
+      {
+        src: "https://nestgramado.com.br/wp-content/uploads/2025/05/caf4d37d9de95f429df5f8bc6f63ae9f34ae1ea0-02.png",
+        alt: "Ambiente do Nest Mountain Lodge"
+      },
+      {
+        src: "https://nestgramado.com.br/wp-content/uploads/2025/05/39f613dc9d467f7faadf5688e4e57838c05a6030-scaled.png",
+        alt: "Arquitetura do Nest Mountain Lodge"
+      },
+      {
+        src: "https://nestgramado.com.br/wp-content/uploads/2025/05/5eda4560ff985a6ca68ff1b4304e3d7f3e211bcb.png",
+        alt: "Detalhe do Nest Mountain Lodge"
+      }
     ],
     leadTitle: "Fale sobre o Nest Mountain Lodge"
   }
@@ -75,7 +103,9 @@ const resultWordmark = document.querySelector("#result-wordmark");
 const resultCopy = document.querySelector("#result-copy");
 const resultSubtitle = document.querySelector("#result-subtitle");
 const resultBenefits = document.querySelector("#result-benefits");
+const resultGallery = document.querySelector("#result-gallery");
 const resultLink = document.querySelector("#result-link");
+const resultLeadScreen = document.querySelector("#result-screen-lead");
 const leadForm = document.querySelector("#lead-form");
 const leadTitle = document.querySelector("#lead-title");
 const leadError = document.querySelector("#lead-error");
@@ -86,12 +116,6 @@ let questionTransitionFrame;
 
 function getScrollBehavior() {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth";
-}
-
-function scrollResultTo(element, behavior = getScrollBehavior()) {
-  const resultTop = result.getBoundingClientRect().top;
-  const targetTop = element.getBoundingClientRect().top - resultTop + result.scrollTop;
-  result.scrollTo({ top: Math.max(0, targetTop), behavior });
 }
 
 function renderQuestion({ focus = false } = {}) {
@@ -144,6 +168,18 @@ function showResult() {
     item.textContent = benefit;
     return item;
   }));
+  resultGallery.replaceChildren(...(content.gallery || []).map(({ src, alt }) => {
+    const figure = document.createElement("figure");
+    const image = document.createElement("img");
+    const caption = document.createElement("figcaption");
+    image.src = src;
+    image.alt = alt;
+    image.loading = "lazy";
+    image.decoding = "async";
+    caption.textContent = "Foto oficial";
+    figure.append(image, caption);
+    return figure;
+  }));
   leadTitle.textContent = content.leadTitle || "Fale com a Ownerinc";
   resultLink.hidden = true;
   const destination = destinationUrls[state.result];
@@ -152,9 +188,9 @@ function showResult() {
     resultLink.hidden = false;
   }
   result.hidden = false;
+  leadForm.hidden = false;
   result.scrollIntoView({ block: "start", behavior: "instant" });
   resultTitle.focus({ preventScroll: true });
-  result.scrollTop = 0;
 }
 
 resultLogo.addEventListener("load", () => {
@@ -210,10 +246,8 @@ function restartQuiz() {
   state.submissionAttempt = createSubmissionAttempt();
   quiz.hidden = true;
   result.hidden = true;
-  result.scrollTop = 0;
-  result.classList.remove("is-revealed");
   result.removeAttribute("data-result");
-  leadForm.hidden = true;
+  leadForm.hidden = false;
   success.hidden = true;
   leadForm.reset();
   leadForm.removeAttribute("aria-busy");
@@ -230,11 +264,8 @@ document.querySelector("#restart-result").addEventListener("click", restartQuiz)
 document.querySelector("#restart-success").addEventListener("click", restartQuiz);
 
 document.querySelector("#show-lead-form").addEventListener("click", () => {
-  leadForm.hidden = false;
-  requestAnimationFrame(() => {
-    scrollResultTo(leadForm, "instant");
-    leadTitle.focus({ preventScroll: true });
-  });
+  resultLeadScreen.scrollIntoView({ block: "start", behavior: getScrollBehavior() });
+  leadTitle.focus({ preventScroll: true });
 });
 
 leadForm.addEventListener("submit", async (event) => {

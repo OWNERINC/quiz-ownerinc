@@ -7,7 +7,7 @@ import { handleLeadRequest, leadConfigFromEnv } from "./src/lead-handler.mjs";
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const publicRoot = path.join(directory, "public");
 const maxBodySize = 64 * 1024;
-const contentSecurityPolicy = "default-src 'self'; base-uri 'none'; connect-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data:; object-src 'none'; script-src 'self'; style-src 'self'";
+const contentSecurityPolicy = "default-src 'self'; base-uri 'none'; connect-src 'self'; font-src 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data: https://owntime.com.br https://nestgramado.com.br; object-src 'none'; script-src 'self'; style-src 'self'";
 const contentTypes = {
   ".css": "text/css; charset=utf-8",
   ".html": "text/html; charset=utf-8",

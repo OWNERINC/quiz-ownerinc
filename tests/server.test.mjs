@@ -271,7 +271,12 @@ test("does not serve a public symlink whose target is outside public", async () 
   await fs.writeFile(outsideFile, "private");
 
   try {
-    await fs.symlink(temporaryDirectory, link, "dir");
+    try {
+      await fs.symlink(temporaryDirectory, link, "dir");
+    } catch (error) {
+      if (error.code === "EPERM" && process.platform === "win32") return;
+      throw error;
+    }
     await withServer({ ...publicOptions, publicDirectory: temporaryPublicRoot }, async (baseUrl) => {
       const response = await fetch(`${baseUrl}/outside/private.txt`);
       assert.equal(response.status, 404);
@@ -289,6 +294,7 @@ test("serves public files with restrictive security headers", async () => {
     assert.match(response.headers.get("content-type"), /^text\/javascript/);
     assert.equal(response.headers.get("x-content-type-options"), "nosniff");
     assert.match(response.headers.get("content-security-policy"), /connect-src 'self'/);
+    assert.match(response.headers.get("content-security-policy"), /img-src 'self' data: https:\/\/owntime\.com\.br https:\/\/nestgramado\.com\.br/);
     assert.match(await response.text(), /export const QUESTIONS/);
     assert.equal((await fetch(`${baseUrl}/missing.txt`)).status, 404);
   });

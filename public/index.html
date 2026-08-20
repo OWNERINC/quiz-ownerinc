@@ -67,7 +67,7 @@
     </section>
 
     <section id="result" class="result" aria-labelledby="result-title" aria-live="polite" hidden>
-      <div class="result__hero">
+      <section id="result-screen-hero" class="result-screen result-screen--hero" aria-labelledby="result-title">
         <div class="result__media" aria-hidden="true"></div>
         <div class="result__veil" aria-hidden="true"></div>
         <div class="result__content">
@@ -76,17 +76,23 @@
             <span id="result-wordmark" class="result__wordmark"></span>
           </h2>
           <p id="result-subtitle" class="result__subtitle">Uma afinidade editorial para conhecer Gramado do seu jeito.</p>
+          <ul id="result-benefits" class="result__benefits" aria-label="Destaques da proposta"></ul>
           <div class="result__actions">
             <button id="show-lead-form" class="button button--light" type="button">
               <span>Falar com atendente</span>
             </button>
           </div>
         </div>
-      </div>
+        <p class="result__screen-index" aria-hidden="true">01 / 03</p>
+      </section>
 
-      <div class="result__concept">
-        <p id="result-copy" class="result__copy"></p>
-        <ul id="result-benefits" class="result__benefits" aria-label="Destaques da proposta"></ul>
+      <section id="result-screen-product" class="result-screen result-screen--product" aria-labelledby="result-product-title">
+        <div class="result__product-copy">
+          <p class="eyebrow">A proposta</p>
+          <h2 id="result-product-title">Conheça o conceito</h2>
+          <p id="result-copy" class="result__copy"></p>
+        </div>
+        <div id="result-gallery" class="result__gallery" aria-label="Fotos oficiais do empreendimento"></div>
         <p id="result-trust" class="result__trust">Ownerinc / Gramado</p>
         <p class="result__model">Owntime e Nest Mountain Lodge são empreendimentos Ownerinc de propriedade compartilhada. Regras e condições seguem os documentos vigentes de cada produto.</p>
         <div class="result__actions">
@@ -94,15 +100,17 @@
         </div>
         <button id="restart-result" class="text-link text-link--button" type="button">Refazer quiz</button>
         <p class="result__note">Sugestão editorial baseada nas preferências informadas, sem hierarquia ou garantia de adequação.</p>
-      </div>
+        <p class="result__screen-index" aria-hidden="true">02 / 03</p>
+      </section>
 
-      <div class="result__registration">
-        <form id="lead-form" class="lead-form" aria-labelledby="lead-title" hidden>
-          <header class="lead-form__header">
-            <p class="eyebrow">Próximo passo</p>
-            <h2 id="lead-title" tabindex="-1">Fale com a Ownerinc</h2>
-            <p>Deixe seus dados para receber informações sobre o empreendimento indicado.</p>
-          </header>
+      <section id="result-screen-lead" class="result-screen result-screen--lead" aria-labelledby="lead-title">
+        <div class="result__registration">
+          <form id="lead-form" class="lead-form" aria-labelledby="lead-title">
+            <header class="lead-form__header">
+              <p class="eyebrow">Próximo passo</p>
+              <h2 id="lead-title" tabindex="-1">Fale com a Ownerinc</h2>
+              <p>Deixe seus dados para receber informações sobre o empreendimento indicado.</p>
+            </header>
 
           <div class="field">
             <label for="name">Nome</label>
@@ -126,11 +134,13 @@
             declaro que li a <a data-config="privacyPolicyUrl">Política de Privacidade</a>.</label>
           </div>
 
-          <p id="config-status" class="form-status" role="status">Carregando configurações de atendimento…</p>
-          <p id="lead-error" role="alert" tabindex="-1" hidden></p>
-          <button id="submit-lead" class="button button--dark" type="submit" disabled>Enviar meus dados</button>
-        </form>
-      </div>
+            <p id="config-status" class="form-status" role="status">Carregando configurações de atendimento…</p>
+            <p id="lead-error" role="alert" tabindex="-1" hidden></p>
+            <button id="submit-lead" class="button button--dark" type="submit" disabled>Enviar meus dados</button>
+          </form>
+        </div>
+        <p class="result__screen-index" aria-hidden="true">03 / 03</p>
+      </section>
 
       <p class="result__index" aria-hidden="true">Ownerinc / Gramado</p>
     </section>
