@@ -246,18 +246,27 @@ function renderResultGallery(items) {
   });
   viewport.append(track);
 
-  const previous = document.createElement("button");
-  previous.className = "carousel__control carousel__control--previous";
-  previous.type = "button";
-  previous.setAttribute("aria-label", "Foto anterior");
-  previous.textContent = "Anterior";
+  const createArrow = (direction, label, pathData) => {
+    const button = document.createElement("button");
+    button.className = `carousel__control carousel__control--${direction}`;
+    button.type = "button";
+    button.setAttribute("aria-label", label);
+    const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    icon.setAttribute("viewBox", "0 0 24 24");
+    icon.setAttribute("width", "24");
+    icon.setAttribute("height", "24");
+    icon.setAttribute("aria-hidden", "true");
+    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    path.setAttribute("d", pathData);
+    icon.append(path);
+    button.append(icon);
+    return button;
+  };
+
+  const previous = createArrow("previous", "Foto anterior", "M15 5 8 12 15 19");
   previous.addEventListener("click", () => moveGallery(-1));
 
-  const next = document.createElement("button");
-  next.className = "carousel__control carousel__control--next";
-  next.type = "button";
-  next.setAttribute("aria-label", "Próxima foto");
-  next.textContent = "Próxima";
+  const next = createArrow("next", "Próxima foto", "m9 5 7 7-7 7");
   next.addEventListener("click", () => moveGallery(1));
 
   const indicators = document.createElement("div");

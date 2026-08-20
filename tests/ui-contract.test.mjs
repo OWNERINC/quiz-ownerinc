@@ -78,8 +78,9 @@ test("exposes functional carousel controls and slide accessibility state", async
   assert.match(app, /aria-roledescription", "slide"/);
   assert.match(app, /setAttribute\("aria-hidden", "true"\)/);
   assert.match(app, /setAttribute\("aria-live", "polite"\)/);
-  assert.match(app, /className = "carousel__control carousel__control--previous"/);
-  assert.match(app, /className = "carousel__control carousel__control--next"/);
+  assert.match(app, /className = `carousel__control carousel__control--\$\{direction\}`/);
+  assert.match(app, /createElementNS\("http:\/\/www\.w3\.org\/2000\/svg", "svg"\)/);
+  assert.doesNotMatch(app, /previous\.textContent = "Anterior"|next\.textContent = "Próxima"/);
   assert.match(app, /className = "carousel__indicator"/);
   assert.match(app, /addEventListener\("keydown", handleGalleryKeydown\)/);
   assert.match(app, /addEventListener\("pointerdown", handleGalleryPointerDown\)/);
@@ -100,7 +101,7 @@ test("uses document-flow result screens and preserves reduced-motion rules", asy
   assert.match(styles, /\.carousel__slide\.is-active[\s\S]*?translate3d\(-50%, 0, 48px\)/);
   assert.match(styles, /\.carousel__slide\.is-previous[\s\S]*?rotateY\(18deg\)[\s\S]*?scale\(\.76\)/);
   assert.match(styles, /\.carousel__slide\.is-next[\s\S]*?rotateY\(-18deg\)[\s\S]*?scale\(\.76\)/);
-  assert.match(styles, /\.carousel__control[\s\S]*?min-width:\s*48px;[\s\S]*?min-height:\s*48px;/);
+  assert.match(styles, /\.carousel__control[\s\S]*?width:\s*48px;[\s\S]*?height:\s*48px;/);
   assert.match(styles, /\.carousel__indicator\s*\{[\s\S]*?min-width:\s*44px;[\s\S]*?min-height:\s*44px;/);
   assert.match(styles, /\.carousel__slide\s*\{[\s\S]*?transition:/);
   assert.doesNotMatch(styles, /\.result\s*\{[^}]*height:\s*100dvh/);
