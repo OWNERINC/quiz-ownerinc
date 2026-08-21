@@ -402,6 +402,7 @@ h1 em {
   min-width: 0;
   gap: .5rem;
   padding-inline: .65rem;
+  letter-spacing: .04em;
   white-space: nowrap;
 }
 
