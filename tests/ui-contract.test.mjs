@@ -78,6 +78,13 @@ test("keeps quiz navigation slots stable across the first question", async () =>
   assert.match(app, /back\.tabIndex = isFirstQuestion \? -1 : 0/);
 });
 
+test("anchors quiz navigation to the viewport edges", async () => {
+  const styles = await readFile(stylesUrl, "utf8");
+  assert.match(styles, /\.quiz__actions\s*\{[\s\S]*?position:\s*fixed;[\s\S]*?right:\s*max\([\s\S]*?bottom:\s*0;[\s\S]*?left:\s*max\(/);
+  assert.match(styles, /\.quiz__actions\s*\{[\s\S]*?grid-template-columns:\s*auto auto;[\s\S]*?justify-content:\s*space-between;/);
+  assert.match(styles, /\.quiz\s*\{[\s\S]*?padding:[^;]*calc\(max\([\s\S]*?5\.25rem\)/);
+});
+
 test("exposes functional carousel controls and slide accessibility state", async () => {
   const app = await readFile(appUrl, "utf8");
   assert.match(app, /aria-roledescription", "slide"/);

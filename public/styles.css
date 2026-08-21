@@ -233,7 +233,7 @@ h1 em {
   grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto auto minmax(0, 1fr);
   align-content: start;
-  padding: max(var(--page-pad), env(safe-area-inset-top)) max(var(--page-pad), env(safe-area-inset-right)) max(var(--page-pad), env(safe-area-inset-bottom)) max(var(--page-pad), env(safe-area-inset-left));
+  padding: max(var(--page-pad), env(safe-area-inset-top)) max(var(--page-pad), env(safe-area-inset-right)) calc(max(var(--page-pad), env(safe-area-inset-bottom)) + 5.25rem) max(var(--page-pad), env(safe-area-inset-left));
 }
 
 .quiz__header,
@@ -388,10 +388,20 @@ h1 em {
 }
 
 .quiz__actions {
+  position: fixed;
+  right: max(var(--page-pad), env(safe-area-inset-right));
+  bottom: 0;
+  left: max(var(--page-pad), env(safe-area-inset-left));
+  z-index: 5;
   display: grid;
-  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  grid-template-columns: auto auto;
+  justify-content: space-between;
   gap: .75rem;
-  margin-top: clamp(.5rem, 1.8dvh, 1.25rem);
+  margin: 0;
+  padding-top: .75rem;
+  padding-bottom: max(.75rem, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+  background: var(--surface);
 }
 
 .quiz__actions .button {
@@ -1055,8 +1065,8 @@ noscript {
   }
 
   .quiz__actions {
-    grid-template-columns: 9rem minmax(13rem, 17rem);
-    justify-content: end;
+    grid-template-columns: auto auto;
+    justify-content: space-between;
   }
 
   .result-screen {
@@ -1193,7 +1203,7 @@ noscript {
   }
 
   .quiz__actions {
-    margin-top: .5rem;
+    margin: 0;
   }
 
   .result__content {
@@ -1278,7 +1288,7 @@ noscript {
   }
 
   .quiz__actions {
-    margin-top: .5rem;
+    margin: 0;
   }
 }
 
