@@ -262,10 +262,6 @@ h1 em {
   filter: brightness(0);
 }
 
-.quiz__header .eyebrow {
-  margin-bottom: .35rem;
-}
-
 .quiz__header h2 {
   margin: 0;
   font-size: clamp(1rem, 3vw, 1.35rem);
