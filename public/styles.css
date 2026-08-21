@@ -398,6 +398,13 @@ h1 em {
   margin-top: clamp(.5rem, 1.8dvh, 1.25rem);
 }
 
+.quiz__actions .button {
+  min-width: 0;
+  gap: .5rem;
+  padding-inline: .65rem;
+  white-space: nowrap;
+}
+
 .button--quiet {
   border: 1px solid var(--line);
   background: transparent;
@@ -933,7 +940,10 @@ h1 em {
 
 .consent {
   position: relative;
-  display: block;
+  display: grid;
+  grid-template-columns: 1.35rem minmax(0, 1fr);
+  gap: .8rem;
+  align-items: start;
   grid-column: 1 / -1;
   margin: 0;
   font-size: clamp(.72rem, 2.6vw, .875rem);
@@ -941,30 +951,22 @@ h1 em {
 }
 
 .consent label {
-  display: flex;
+  display: block;
   min-height: 48px;
-  align-items: center;
   overflow-wrap: anywhere;
-  padding-left: 2.5rem;
   cursor: pointer;
 }
 
 .consent input {
-  position: absolute;
-  top: 50%;
-  left: .2rem;
-  z-index: 1;
+  position: static;
   width: 1.35rem;
   height: 1.35rem;
-  margin: 0;
+  margin: .15rem 0 0;
   accent-color: var(--ink);
-  transform: translateY(-50%);
 }
 
 .consent a {
-  display: inline-flex;
-  min-height: 48px;
-  align-items: center;
+  display: inline;
   color: inherit;
   font-weight: 700;
   text-underline-offset: .2rem;
